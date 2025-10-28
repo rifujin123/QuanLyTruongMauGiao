@@ -74,11 +74,11 @@ QuanLyTruongMauGiao/
 
 ## Công Nghệ Sử Dụng
 
-- 🐍 Python Flask - Web Framework
-- 🎨 Bootstrap 5 - Frontend Framework
-- 📝 Jinja2 - Template Engine
-- 🔒 Werkzeug - WSGI Utility Library
-- 🗄️ SQLAlchemy (coming soon) - ORM và Database
+- Python Flask - Web Framework
+- Bootstrap 5 - Frontend Framework
+- Jinja2 - Template Engine
+- Werkzeug - WSGI Utility Library
+- SQLAlchemy (coming soon) - ORM và Database
 
 ## Đóng Góp
 
@@ -99,4 +99,4 @@ Dự án này được phân phối dưới giấy phép MIT License.
 - Email: [2351050085khoi@ou.edu.vn]
 
 ---
-⭐️ From [rifujin123](https://github.com/rifujin123)
+  From [rifujin123](https://github.com/rifujin123)
