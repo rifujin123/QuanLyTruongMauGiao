@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <!--Login Form-->
+      <div class="form-box login">
+        <form action="#">
+          <h1>Login</h1>
+          <div class="input-box">
+            <input type="text" placeholder="Username" required />
+          </div>
+          <div class="input-box">
+            <input type="password" placeholder="Password" required />
+          </div>
+          <div class="forgot-link"><a href="#">Forgot password?</a></div>
+          <button type="submit" class="btn">Login</button>
+          <p>or login with social platforms</p>
+          <div class="social-icons">
+            <a href="#"><i class="fab fa-facebook-f"></i></a>
+            <a href="#"><i class="fab fa-google"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+          </div>
+        </form>
+      </div>
+      <!--Register Form-->
+      <div class="form-box register">
+        <form action="#">
+          <h1>Register</h1>
+          <div class="input-box">
+            <input type="text" placeholder="Username" required />
+          </div>
+          <div class="input-box">
+            <input type="email" placeholder="Email" required />
+          </div>
+          <div class="input-box">
+            <input type="password" placeholder="Password" required />
+          </div>
+          <div class="input-box">
+            <input type="password" placeholder="Confirm Password" required />
+          </div>
+          <button type="submit" class="btn">Register</button>
+          <p>or sign up with social platforms</p>
+          <div class="social-icons">
+            <a href="#"><i class="fab fa-facebook-f"></i></a>
+            <a href="#"><i class="fab fa-google"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+          </div>
+        </form>
+      </div>
+      <!--Toggle Box-->
+      <div class="toggle-box">
+        <!--Toggle Box Left-->
+        <div class="toggle-panel toggle-left">
+          <h1>Hello, Welcome!</h1>
+          <p>
+            Don't have an account? <a href="#">Register</a>
+            <button class="btn register-btn">Register</button>
+          </p>
+        </div>
+        <div class="register-link">
+          <p>Don't have an account? <a href="#">Register</a></p>
+        </div>
+
+        <!--Toggle Box Right-->
+        <div class="toggle-panel toggle-right">
+          <h1>Welcome Back!</h1>
+          <p>Already have an account? <a href="#">Login</a></p>
+          <button class="btn login-btn">Login</button>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
