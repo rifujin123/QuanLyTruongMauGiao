@@ -10,6 +10,10 @@ body {
   --bs-primary-rgb: 111, 66, 193;
 }
 
+.icon {
+  color: #6f42c1;
+}
+
 .sidebar {
   width: 220px;
 }
@@ -126,8 +130,4 @@ body {
 .pagination .page-link:hover {
   color: #5a35b0;
   background-color: rgba(111, 66, 193, 0.1);
-}
-
-.icon-footer {
-  color: #6f42c1;
 }
