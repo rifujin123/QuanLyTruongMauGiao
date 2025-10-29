@@ -1,58 +1,179 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'base.html' %} {% block title %}Trang chủ{% endblock %} {% block
+content %}
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb mb-0">
+      <li class="breadcrumb-item">
+        <a href="#" style="color: #6f42c1">Trang chủ</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+    </ol>
+  </nav>
+  <span class="badge text-bg-light">Năm học: 2024/2025</span>
+</div>
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Trường Mẫu Giáo</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-</head>
-
-<body>
-  <!-- Header -->
-  <nav class="navbar navbar-expand-sm bg-dark navbar-dark fixed-top">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="#">Logo</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="collapsibleNavbar">
-        <ul class="navbar-nav">
-          <li class="nav-item">
-            <a class="nav-link" href="#">Link</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Link</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Link</a>
-          </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Dropdown</a>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="#">Link</a></li>
-              <li><a class="dropdown-item" href="#">Another link</a></li>
-              <li><a class="dropdown-item" href="#">A third link</a></li>
-            </ul>
-          </li>
-        </ul>
+<div class="row g-3 mb-4">
+  <div class="col-12 col-sm-6 col-lg-3">
+    <div class="card shadow-sm border-0 h-100">
+      <div class="card-body">
+        <div class="d-flex align-items-center gap-3">
+          <div class="rounded-3 p-3 bg-light">
+            <i class="fa-solid fa-graduation-cap"></i>
+          </div>
+          <div>
+            <div class="text-secondary small">Tổng số học sinh</div>
+            <div class="fw-bold fs-5">200</div>
+          </div>
+        </div>
       </div>
     </div>
-  </nav>
-  <!-- Main Content Area -->
+  </div>
+  <div class="col-12 col-sm-6 col-lg-3">
+    <div class="card shadow-sm border-0 h-100">
+      <div class="card-body">
+        <div class="d-flex align-items-center gap-3">
+          <div class="rounded-3 p-3 bg-light">
+            <i class="fa-solid fa-seedling"></i>
+          </div>
+          <div>
+            <div class="text-secondary small">Lớp hoa sen</div>
+            <div class="fw-bold">20.0%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-sm-6 col-lg-3">
+    <div class="card shadow-sm border-0 h-100">
+      <div class="card-body">
+        <div class="d-flex align-items-center gap-3">
+          <div class="rounded-3 p-3 bg-light">
+            <i class="fa-solid fa-spa"></i>
+          </div>
+          <div>
+            <div class="text-secondary small">Lớp hoa hồng</div>
+            <div class="fw-bold">60.0%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-sm-6 col-lg-3">
+    <div class="card shadow-sm border-0 h-100">
+      <div class="card-body">
+        <div class="d-flex align-items-center gap-3">
+          <div class="rounded-3 p-3 bg-light">
+            <i class="fa-solid fa-sun"></i>
+          </div>
+          <div>
+            <div class="text-secondary small">Lớp hoa hướng dương</div>
+            <div class="fw-bold">20.0%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-  <!-- Footer -->
-  <div class="mt-4 p-5 bg-primary text-white rounded ">
-    <h1>Jumbotron Example</h1>
-    <div class="row">
-      <div class="col">.col</div>
-      <div class="col">.col</div>
-      <div class="col">.col</div>
+<div class="card border-0 shadow-sm">
+  <div class="card-body">
+    <div
+      class="d-flex flex-wrap gap-2 align-items-center justify-content-between mb-3"
+    >
+      <h5 class="mb-0">Danh sách học sinh</h5>
+      <div class="d-flex gap-2">
+        <div class="btn-group">
+          <button
+            class="btn btn-outline-secondary btn-sm dropdown-toggle"
+            data-bs-toggle="dropdown"
+          >
+            Tất cả
+          </button>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="#">Tất cả</a></li>
+            <li><a class="dropdown-item" href="#">Lớp hoa hướng dương</a></li>
+            <li><a class="dropdown-item" href="#">Lớp hoa hồng</a></li>
+            <li><a class="dropdown-item" href="#">Lớp hoa sen</a></li>
+          </ul>
+        </div>
+        <div class="input-group input-group-sm">
+          <span class="input-group-text bg-white"
+            ><i class="fa-solid fa-magnifying-glass"></i
+          ></span>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Tìm kiếm học sinh"
+          />
+        </div>
+      </div>
     </div>
 
-  </div>
-</body>
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Tên học sinh</th>
+            <th>Số điện thoại phụ huynh</th>
+            <th>Lớp học</th>
+            <th>Tình trạng hiện tại</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>James Franci</td>
+            <td>emoore@aol.com</td>
+            <td>Software Development - 2023/2024</td>
+            <td class="text-primary">In Search of Employment</td>
+          </tr>
+          <tr>
+            <td>Desirae Gouse</td>
+            <td>othomas@hotmail.com</td>
+            <td>Data Science & AI - 2024/2025</td>
+            <td class="text-success">Recruited</td>
+          </tr>
+          <tr>
+            <td>Jaydon Philips</td>
+            <td>ygonzalez@icloud.com</td>
+            <td>Creative Technologies - 2023/2024</td>
+            <td class="text-secondary">Further Education</td>
+          </tr>
+          <tr>
+            <td>Ryan P.</td>
+            <td>hgonzaez@gmail.com</td>
+            <td>Creative Technologies - 2024/2025</td>
+            <td class="text-success">Recruited</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-</html>
+    <div class="d-flex align-items-center justify-content-between pt-3">
+      <button
+        class="btn btn-sm rounded-circle"
+        style="
+          width: 38px;
+          height: 38px;
+          background-color: #6917ff;
+          color: white;
+        "
+        aria-label="Thêm"
+      >
+        <i class="fa-solid fa-plus"></i>
+      </button>
+      <nav>
+        <ul class="pagination pagination-sm mb-0">
+          <li class="page-item disabled">
+            <a class="page-link" href="#">‹</a>
+          </li>
+          <li class="page-item active"><a class="page-link" href="#">1</a></li>
+          <li class="page-item"><a class="page-link" href="#">2</a></li>
+          <li class="page-item"><a class="page-link" href="#">...</a></li>
+          <li class="page-item"><a class="page-link" href="#">24</a></li>
+          <li class="page-item"><a class="page-link" href="#">›</a></li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>
+{% endblock %}

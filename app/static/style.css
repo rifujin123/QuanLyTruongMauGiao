@@ -1,0 +1,87 @@
+body {
+  display: flex;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Màu chủ đạo tím Bootstrap */
+:root {
+  --bs-primary: #6f42c1; /* tím */
+  --bs-primary-rgb: 111, 66, 193;
+}
+
+.sidebar {
+  width: 220px;
+}
+
+.main-content {
+  flex: 1;
+  background-color: #f8f9fa;
+}
+
+/* Thu nhỏ chiều cao header */
+.navbar {
+  padding-top: 0.25rem; /* 4px */
+  padding-bottom: 0.25rem; /* 4px */
+}
+
+.navbar .navbar-brand {
+  font-size: 1rem;
+}
+
+.navbar .btn {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}
+
+/* Làm nổi bật nút đăng nhập */
+.btn-outline-primary {
+  background: #ffffff;
+  color: #6f42c1;
+}
+.btn-outline-primary:hover {
+  background: rgba(111, 66, 193, 0.06);
+}
+
+/* Sidebar tím nhẹ */
+.sidebar-purple {
+  --sidebar-bg: #f5f0ff; /* tím rất nhạt */
+  --sidebar-border: #e6dcff; /* viền nhạt */
+  --sidebar-text: #5b4a8f; /* tím đậm vừa phải */
+  --sidebar-hover: rgba(111, 66, 193, 0.08);
+
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-border);
+  color: var(--sidebar-text);
+}
+
+.sidebar-purple h4 {
+  color: var(--sidebar-text);
+}
+.sidebar-purple .nav-link {
+  color: var(--sidebar-text);
+  border-radius: 0;
+}
+.sidebar-purple .nav-link:hover {
+  background: var(--sidebar-hover);
+  color: var(--sidebar-text);
+}
+
+/* Căn biểu tượng và chữ gọn gàng, góc vuông */
+.sidebar-purple .nav-link {
+  padding: 0.5rem 0.75rem;
+  display: flex;
+  align-items: center;
+}
+
+/* Footer */
+.app-footer {
+  border-top: 1px solid #ece7ff;
+  background: #faf7ff;
+}
+.app-footer .nav-link {
+  color: #6b5aa7;
+}
+.app-footer .nav-link:hover {
+  color: #4f3d92;
+}
