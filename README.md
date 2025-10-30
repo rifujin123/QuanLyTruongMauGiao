@@ -6,7 +6,7 @@ Hệ thống quản lý toàn diện cho trường mẫu giáo, được xây d�
 
 -  Quản lý thông tin trường học
 -  Quản lý học sinh
--  Quản lý giáo viên và nhân viên
+-  Quản lý giáo viên
 -  Quản lý lớp học
 -  Quản lý thời khóa biểu
 -  Quản lý hoạt động hàng ngày
