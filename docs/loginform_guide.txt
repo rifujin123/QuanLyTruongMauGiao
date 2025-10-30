@@ -2,8 +2,8 @@ LOGINFORM - HƯỚNG DẪN SỬ DỤNG CSS VÀ JS
 
 1) Vị trí file liên quan
 - HTML: app/templates/login.html
-- CSS:  app/static/loginform.css
-- (Tuỳ chọn) JS: có thể tách ra app/static/login.js rồi include vào template
+- CSS:  app/static/Css/loginform.css
+- (Tuỳ chọn) JS: có thể tách ra app/static/Js/login.js rồi include vào template
 
 2) Bố cục chính (HTML classes)
 - .container: Khung tổng, bao quanh 2 form và khu vực toggle
@@ -56,22 +56,51 @@ LOGINFORM - HƯỚNG DẪN SỬ DỤNG CSS VÀ JS
   - Đậm hơn: tăng độ tương phản gradient (#7f3fe6)
   - Dịu hơn: dùng nền #ece7fc thay gradient, giữ chữ #532bb0 hoặc #5a35b0
 
-8) Nút Register (ở panel)
-- Nút mặc định:
+8) Nút trong panel (Register/Login) – đã tách style riêng
+- Quy tắc chung (kích thước/bo góc/transition):
   .toggle-panel .btn {
-    width: 160px; height: 46px;
-    background: linear-gradient(to left, #ffffff 70%, #b992f4);
-    border: 2px solid #a087d8;
-    color: #7046b7; border-radius: 15px;
+    width: 160px; height: 46px; border-radius: 15px;
+    box-shadow: 0 2px 10px rgba(111,66,193,0.06);
+    transition: background .16s, color .16s, border .18s;
   }
-- Hover/Focus đồng bộ theme:
-  .toggle-panel .btn:hover,
-  .toggle-panel .btn:focus {
+- Register (mặc định gradient to left):
+  .toggle-panel .register-btn {
+    background: linear-gradient(to left, #ffffff 70%, #b992f4);
+    border: 2px solid #a087d8; color: #7046b7;
+  }
+  .toggle-panel .register-btn:hover,
+  .toggle-panel .register-btn:focus {
     background: linear-gradient(to left, #f3ecff 60%, #a97ff7);
     color: #5a35b0; border-color: #a97ff7;
-    box-shadow: 0 4px 16px rgba(111, 66, 193, 0.14);
+  }
+ - Login (đã tách riêng – mặc định gradient to right để phân biệt):
+  .toggle-panel .login-btn {
+    background: linear-gradient(to right, #ffffff 70%, #b992f4);
+    border: 2px solid #a087d8; color: #7046b7;
+  }
+  .toggle-panel .login-btn:hover,
+  .toggle-panel .login-btn:focus {
+    background: linear-gradient(to right, #f3ecff 60%, #a97ff7);
+    color: #5a35b0; border-color: #a97ff7;
   }
 - Khoảng cách với dòng text phía trên: điều khiển bởi gap ở .toggle-panel hoặc riêng .toggle-panel.toggle-left { gap: 6px; }
+
+9) Cấu trúc chú thích trong app/static/Css/loginform.css
+- File đã được thêm chú thích nhóm để dễ tìm chỗ cần sửa:
+  - "NỀN TRANG": chỉnh gradient nền body
+  - "CONTAINER TỔNG": khung trắng bo góc, bóng đổ
+  - "KHỐI FORM": .form-box, trạng thái .container.active
+  - "INPUT": padding, font-size, placeholder
+  - "QUÊN MẬT KHẨU": .forgot-link, màu link và căn lề
+  - "NÚT TRONG FORM (ĐĂNG NHẬP)": kích thước nút trong form login và hover
+  - "MXH (SOCIAL ICONS)": kích thước và gradient icon MXH
+  - "HIỆU ỨNG TOGGLE BACKDROP": dải gradient ::before di chuyển khi toggle
+  - "PANELS (TRÁI/PHẢI)": vị trí, gap, transition của toggle-panel
+  - "NÚT Ở PANEL: CẤU HÌNH CHUNG": kích thước/transition chung cho nút panel
+  - "Nút Register ở panel - màu riêng (gradient to left)": màu riêng cho register
+  - "Nút Login ở panel - màu riêng": màu riêng cho login (mặc định to right)
+
+Gợi ý: Khi cần đổi màu một nút, chỉ sửa tại block nút tương ứng thay vì sửa quy tắc chung.
 
 9) Social icons (MXH)
 - Nền có gradient mờ, bo góc 20px, kích thước 50x50
@@ -91,7 +120,7 @@ LOGINFORM - HƯỚNG DẪN SỬ DỤNG CSS VÀ JS
 - Mục tiêu: nhấn "Register" mở form Đăng ký, nhấn "Login" về form Đăng nhập
 - Cơ chế: thêm/bỏ class "active" vào .container
 
-JS mẫu (có thể đặt trong app/static/login.js):
+JS mẫu (có thể đặt trong app/static/Js/login.js):
 
 // login.js - Toggle giữa Login/Register
 (function () {
@@ -117,8 +146,13 @@ JS mẫu (có thể đặt trong app/static/login.js):
 })();
 
 Cách nhúng JS vào template (login.html):
-- Thêm trước </body>:
-  <script src="{{ url_for('static', filename='login.js') }}"></script>
+- Đặt trong <head> và dùng defer để chờ DOM sẵn sàng:
+  <script defer src="{{ url_for('static', filename='Js/login.js') }}"></script>
+
+Lưu ý khắc phục khựng/không hiện panel khi toggle:
+- Đảm bảo .form-box có height: 100%;
+- Sửa chính tả transition: transition: 0.6s/1.8s ease-in-out (không phải transtion/transittion);
+- Đúng selector: .container.active .toggle-panel.toggle-right { right: 0; }
 
 13) Quy ước và giữ đồng bộ
 - Giữ tông tím chủ đạo: #6f42c1, #8850ee, #a97ff7, #5a35b0
