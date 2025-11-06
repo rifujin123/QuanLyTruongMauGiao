@@ -21,6 +21,10 @@
       href="{{ url_for('static', filename='Css/style.css') }}"
     />
 
+    <script
+      defer
+      src="{{ url_for('static', filename='Js/sidebar.js') }}"
+    ></script>
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   </head>
@@ -35,7 +39,5 @@
       <div class="container-fluid mt-4">{% block content %}{% endblock %}</div>
       {% include 'components/footer.html' %}
     </div>
-
-    <!--Modal Login-->
   </body>
 </html>
