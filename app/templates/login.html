@@ -16,6 +16,10 @@
       defer
       src="{{ url_for('static', filename='Js/loginRegisterMode.js') }}"
     ></script>
+    <script
+      defer
+      src="{{ url_for('static', filename='Js/authenticationAPI.js') }}"
+    ></script>
   </head>
   <body>
     <div class="container">
@@ -24,10 +28,15 @@
         <form action="#" method="post">
           <h1 style="color: #6f42c1">Đăng nhập</h1>
           <div class="input-box">
-            <input type="phonenumber" placeholder="Số điện thoại" required />
+            <input type="email" name="email" placeholder="Email" required />
           </div>
           <div class="input-box">
-            <input type="password" placeholder="Mật khẩu" required />
+            <input
+              type="password"
+              name="password"
+              placeholder="Mật khẩu"
+              required
+            />
           </div>
           <div class="forgot-link"><a href="#">Quên mật khẩu?</a></div>
           <button type="submit" class="btn">Đăng nhập</button>
@@ -45,16 +54,31 @@
         <form action="#" method="post">
           <h1 style="color: #6f42c1">Đăng ký</h1>
           <div class="input-box">
-            <input type="phonenumber" placeholder="Số điện thoại" required />
+            <input
+              type="text"
+              name="phone"
+              placeholder="Số điện thoại"
+              required
+            />
           </div>
           <div class="input-box">
-            <input type="email" placeholder="Email" required />
+            <input type="email" name="email" placeholder="Email" required />
           </div>
           <div class="input-box">
-            <input type="password" placeholder="Mật Khẩu" required />
+            <input
+              type="password"
+              name="password"
+              placeholder="Mật Khẩu"
+              required
+            />
           </div>
           <div class="input-box">
-            <input type="password" placeholder="Xác nhận mật khẩu" required />
+            <input
+              type="password"
+              name="confirmPassword"
+              placeholder="Xác nhận mật khẩu"
+              required
+            />
           </div>
           <button type="submit" class="btn">Đăng ký</button>
           <p>Đăng ký với các nền tảng khác</p>

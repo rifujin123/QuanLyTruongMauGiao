@@ -36,7 +36,27 @@
     <!-- Main content -->
     <div class="main-content">
       {% include 'components/navbar.html' %}
-      <div class="container-fluid mt-4">{% block content %}{% endblock %}</div>
+      <div class="container-fluid mt-4">
+        {% block breadcrumb %}
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+              <li class="breadcrumb-item">
+                <a
+                  href="{{ url_for('routeController.home') }}"
+                  class="text-brand"
+                  >Trang chủ</a
+                >
+              </li>
+              <li class="breadcrumb-item active" aria-current="page">
+                {% block breadcrumb_current %}{{ Title }}{% endblock %}
+              </li>
+            </ol>
+          </nav>
+          <span class="badge text-bg-light">Năm học: 2024/2025</span>
+        </div>
+        {% endblock %} {% block content %}{% endblock %}
+      </div>
       {% include 'components/footer.html' %}
     </div>
   </body>

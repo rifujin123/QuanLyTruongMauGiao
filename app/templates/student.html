@@ -1,0 +1,163 @@
+{% extends 'base.html' %} {% block title %}Trang chủ{% endblock %} {% block
+content %}
+<div class="row g-3 mb-4">
+  <div class="col-12 col-sm-6 col-lg-3">
+    <div class="card shadow-sm border-0 h-100">
+      <div class="card-body">
+        <div class="d-flex align-items-center gap-3">
+          <div class="rounded-3 p-3 bg-light">
+            <i class="fa-solid fa-graduation-cap icon"></i>
+          </div>
+          <div>
+            <div class="text-secondary small">Tổng số học sinh</div>
+            <div class="fw-bold fs-5">200</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-sm-6 col-lg-3">
+    <div class="card shadow-sm border-0 h-100">
+      <div class="card-body">
+        <div class="d-flex align-items-center gap-3">
+          <div class="rounded-3 p-3 bg-light">
+            <i class="fa-solid fa-seedling icon"></i>
+          </div>
+          <div>
+            <div class="text-secondary small">Lớp hoa sen</div>
+            <div class="fw-bold">20.0%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-sm-6 col-lg-3">
+    <div class="card shadow-sm border-0 h-100">
+      <div class="card-body">
+        <div class="d-flex align-items-center gap-3">
+          <div class="rounded-3 p-3 bg-light">
+            <i class="fa-solid fa-spa icon"></i>
+          </div>
+          <div>
+            <div class="text-secondary small">Lớp hoa hồng</div>
+            <div class="fw-bold">60.0%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-sm-6 col-lg-3">
+    <div class="card shadow-sm border-0 h-100">
+      <div class="card-body">
+        <div class="d-flex align-items-center gap-3">
+          <div class="rounded-3 p-3 bg-light">
+            <i class="fa-solid fa-sun icon"></i>
+          </div>
+          <div>
+            <div class="text-secondary small">Lớp hoa hướng dương</div>
+            <div class="fw-bold">20.0%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+  <div class="card-body">
+    <div
+      class="d-flex flex-wrap gap-2 align-items-center justify-content-between mb-3"
+    >
+      <h5 class="mb-0">Danh sách học sinh</h5>
+      <div class="d-flex gap-2">
+        <div class="btn-group">
+          <button
+            class="btn btn-outline-secondary btn-sm dropdown-toggle"
+            data-bs-toggle="dropdown"
+          >
+            Tất cả
+          </button>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="#">Tất cả</a></li>
+            <li><a class="dropdown-item" href="#">Lớp hoa hướng dương</a></li>
+            <li><a class="dropdown-item" href="#">Lớp hoa hồng</a></li>
+            <li><a class="dropdown-item" href="#">Lớp hoa sen</a></li>
+          </ul>
+        </div>
+        <div class="input-group input-group-sm">
+          <span class="input-group-text bg-white"
+            ><i class="fa-solid fa-magnifying-glass icon"></i
+          ></span>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Tìm kiếm học sinh"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>STT</th>
+            <th>Họ tên trẻ</th>
+            <th>Ngày sinh</th>
+            <th>Giới tính</th>
+            <th>Phụ huynh</th>
+            <th>Số điện thoại liên hệ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>Lê Tuấn KHôi</td>
+            <td>29/10/2005</td>
+            <td>Nam</td>
+            <td>Nguyễn Thị Luyến</td>
+            <td>0123456789</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>Lê Tuấn KHôi</td>
+            <td>29/10/2005</td>
+            <td>Nam</td>
+            <td>Nguyễn Thị Luyến</td>
+            <td>0123456789</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>Lê Tuấn KHôi</td>
+            <td>29/10/2005</td>
+            <td>Nam</td>
+            <td>Nguyễn Thị Luyến</td>
+            <td>0123456789</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="d-flex align-items-center justify-content-between pt-3">
+      <button
+        class="btn btn-sm rounded-circle btn-brand btn-fab"
+        aria-label="Thêm"
+      >
+        <i class="fa-solid fa-plus"></i>
+      </button>
+      <nav>
+        <ul class="pagination pagination-sm mb-0">
+          <li class="page-item disabled">
+            <a class="page-link" href="#">‹</a>
+          </li>
+          <li class="page-item active"><a class="page-link" href="#">1</a></li>
+          <li class="page-item"><a class="page-link" href="#">2</a></li>
+          <li class="page-item"><a class="page-link" href="#">...</a></li>
+          <li class="page-item"><a class="page-link" href="#">24</a></li>
+          <li class="page-item"><a class="page-link" href="#">›</a></li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>
+{% endblock %}

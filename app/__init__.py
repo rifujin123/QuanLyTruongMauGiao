@@ -19,8 +19,17 @@ def create_app():
 
     db.init_app(app)
 
-    from app.controllers.routes import routes
+    # Import models để đăng ký với SQLAlchemy
+    from app.models.user import User
 
-    app.register_blueprint(routes)
+    # Tạo bảng nếu chưa tồn tại
+    with app.app_context():
+        db.create_all()
+
+    from app.controllers.routeController import routeController
+    from app.controllers.authController import authController
+
+    app.register_blueprint(routeController)
+    app.register_blueprint(authController)
 
     return app

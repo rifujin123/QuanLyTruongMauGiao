@@ -2,37 +2,33 @@
   <h4 class="text-center mb-4"><i class="fa-solid fa-school me-2"></i>Educa</h4>
   <ul class="nav flex-column">
     <li class="nav-item">
-      <a href="/dashboard" class="nav-link"
-        ><i class="fa-solid fa-house me-2"></i>Dashboard</a
+      <a href="{{ url_for('routeController.home') }}" class="nav-link"
+        ><i class="fa-solid fa-house me-2"></i>Trang chủ</a
       >
     </li>
     <li class="nav-item">
-      <a href="/students" class="nav-link"
+      <a href="{{ url_for('routeController.student') }}" class="nav-link"
         ><i class="fa-regular fa-face-smile me-2"></i>Học sinh</a
       >
     </li>
     <li class="nav-item">
-      <a href="/health" class="nav-link"
+      <a href="{{url_for('routeController.health')}}" class="nav-link"
         ><i class="fa-solid fa-weight-scale me-2"></i></i>Sức khỏe</a
       >
     </li>
+  
     <li class="nav-item">
-      <a href="/teachers" class="nav-link"
-        ><i class="fa-solid fa-chalkboard-user me-2"></i>Giáo viên</a
-      >
-    </li>
-    <li class="nav-item">
-      <a href="/schedule" class="nav-link"
+      <a href="{{url_for('routeController.schedule')}}" class="nav-link"
         ><i class="fa-solid fa-calendar-days me-2"></i>Lịch học</a
       >
     </li>
     <li class="nav-item">
-      <a href="/fees" class="nav-link"
+      <a href="{{url_for('routeController.fee')}}" class="nav-link"
         ><i class="fa-solid fa-wallet me-2"></i>Học phí</a
       >
     </li>
     <li class="nav-item">
-      <a href="/reports" class="nav-link"
+      <a href="{{url_for('routeController.report')}}" class="nav-link"
         ><i class="fa-solid fa-chart-line me-2"></i>Báo cáo</a
       >
     </li>
