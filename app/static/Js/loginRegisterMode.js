@@ -18,6 +18,10 @@ if (registerBtn) {
   registerBtn.addEventListener("click", (e) => {
     e.preventDefault();
     container.classList.add("active");
+    // Cập nhật URL với mode=register
+    const url = new URL(window.location);
+    url.searchParams.set("mode", "register");
+    window.history.pushState({}, "", url);
   });
 }
 
@@ -25,5 +29,9 @@ if (loginBtn) {
   loginBtn.addEventListener("click", (e) => {
     e.preventDefault();
     container.classList.remove("active");
+    // Cập nhật URL với mode=login
+    const url = new URL(window.location);
+    url.searchParams.set("mode", "login");
+    window.history.pushState({}, "", url);
   });
 }
