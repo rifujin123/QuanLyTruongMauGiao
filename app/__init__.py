@@ -1,10 +1,5 @@
-from flask import Flask, session
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from dotenv import load_dotenv
-import os
-
-# Load biến môi trường từ file .env
-load_dotenv()
 
 db = SQLAlchemy()
 
@@ -16,23 +11,16 @@ def create_app():
         static_folder="static",
     )
 
-    app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:password@localhost/truongmamnon?charset=utf8mb4"
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
-    app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-secret-key-change-in-production")
+    app.config.from_mapping(
+        SQLALCHEMY_DATABASE_URI="sqlite:///database.sqlite3",
+        SQLALCHEMY_TRACK_MODIFICATIONS=False,
+        SECRET_KEY="dev-secret-key",
+    )
 
     db.init_app(app)
 
     # Import models để đăng ký với SQLAlchemy
     from app.models.user import User
-    from app.models.student import Student
-
-    # Context processor để tự động truyền user vào tất cả templates
-    @app.context_processor
-    def inject_user():
-        user = None
-        if 'user_id' in session:
-            user = User.query.get(session['user_id'])
-        return dict(user=user)
 
     # Tạo bảng nếu chưa tồn tại
     with app.app_context():

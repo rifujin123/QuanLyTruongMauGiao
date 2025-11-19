@@ -1,27 +1,17 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm px-3 py-2">
   <span class="navbar-brand" style="color: #6f42c1">{{ Title }}</span>
   <div class="ms-auto d-flex align-items-center gap-2">
-    {% if user %}
-    <div>Xin chào, {{ user.email }}</div>
     <a
-      href="{{ url_for('authController.logout') }}"
-      class="btn btn-sm rounded-0 px-3 btn-outline-danger"
-    >
-      <i class="fa-solid fa-right-from-bracket me-1"></i>Đăng xuất
-    </a>
-    {% else %}
-    <a
-      href="{{ url_for('routeController.signup') }}"
+      href="{{ url_for('routeController.signup', mode='login') }}"
       class="btn btn-sm rounded-0 px-3 shadow-sm btn-brand"
     >
       <i class="fa-solid fa-right-to-bracket me-1"></i>Đăng nhập
     </a>
     <a
-      href="{{ url_for('routeController.signup') }}"
+      href="{{ url_for('routeController.signup', mode='register') }}"
       class="btn btn-outline-primary btn-sm rounded-0 px-3"
     >
       <i class="fa-solid fa-user-plus me-1"></i>Đăng ký
     </a>
-    {% endif %}
   </div>
 </nav>

@@ -1,19 +1,14 @@
-from flask import Blueprint, render_template, session
-from app.models.student import Student
+from flask import Blueprint, render_template
 
 routeController = Blueprint('routeController', __name__)
 
 @routeController.route('/')
 def home():
-    user = session.get('user')
     return render_template('home.html',Title='Trang chủ')
 
 @routeController.route('/student')
 def student():
-    # Lấy tất cả học sinh từ database
-    students = Student.query.order_by(Student.id).all()
-    total_students = Student.query.count()
-    return render_template('students.html', Title='Danh sách học sinh', students=students, total_students=total_students)
+    return render_template('student.html',Title='Danh sách học sinh')
 
 @routeController.route('/health')
 def health():
