@@ -50,10 +50,11 @@ checkRowArray = [checkRow1, checkRow2, checkRow3, checkRow4];
 kidSelect = document.getElementById("selectKid");
 
 kidSelect.addEventListener("change", async () => {
+  checkRowArray.forEach(row => row.innerHTML = ""); // reset check rows
+
   const kidId = kidSelect.value;
   if (!kidId) return;
 
-  checkRowArray.forEach(row => row.innerHTML = ""); // reset check rows
   
   //await fetchKidDataById(kidId);       
   await fetchHealthRecordById(kidId);  
@@ -93,6 +94,7 @@ async function fetchHealthRecordById(kidId) {
 
 
 async function fetchHealthHistoryById(kidId) {
+    checkRowArray.forEach(row => row.innerHTML = ""); // reset check rows
     const healthHistoryData = await fetchDataUrl(`api/health/${kidId}`);
 
 
@@ -142,18 +144,12 @@ async function fetchHealthHistoryById(kidId) {
             console.log("No data");
         } else if (healthRecordArray[i].temperature >= 37.5) {
             checkRowArray[i].innerHTML += `
-            <span class="badge bg-light text-dark">
-                      <i class="fas fa-calendar me-1"><span id="healthRecord1Date"></span></i>
-                    </span>
             <span class="badge bg-danger-subtle text-danger">
                       <i class="fas fa-exclamation-triangle me-1"></i>Sốt
                     </span>`;
             console.log("Sốt");
         } else {
             checkRowArray[i].innerHTML += `
-            <span class="badge bg-light text-dark">
-                      <i class="fas fa-calendar me-1"><span id="healthRecord1Date"></span></i>
-                    </span>
             <span class="badge bg-success-subtle text-success">
                       <i class="fas fa-check-circle me-1"></i>Bình thường
                     </span>`;
