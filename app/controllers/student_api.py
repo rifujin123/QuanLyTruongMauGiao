@@ -43,7 +43,7 @@ def get_students():
 @student_api.route('/api/students/<int:student_id>', methods=['DELETE'])
 @roles_required('Teacher')
 def delete_student(student_id):
-    student = Student.query.get(student_id)
+    student = Student.query.filter_by(id=student_id).first()
     if not student:
         return jsonify({"message": "student not found"}), 404
 

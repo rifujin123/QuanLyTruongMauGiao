@@ -9,17 +9,28 @@ block content %}
       >
     </div>
     <div class="d-flex gap-2">
-      <select class="form-select" style="width: 140px">
-        <option>2025</option>
-        <option>2024</option>
-        <option>2023</option>
+      <select class="form-select" id="year-select" style="width: 140px">
+        <option value="2025" selected>2025</option>
+        <option value="2024">2024</option>
+        <option value="2023">2023</option>
       </select>
-      <select class="form-select" style="width: 140px">
-        <option>Theo tháng</option>
-        <option>Theo quý</option>
-        <option>Theo năm</option>
+      <select class="form-select" id="month-select" style="width: 140px">
+        <option value="" selected disabled>Chọn tháng</option>
+        <option value="1">Tháng 1</option>
+        <option value="2">Tháng 2</option>
+        <option value="3">Tháng 3</option>
+        <option value="4">Tháng 4</option>
+        <option value="5">Tháng 5</option>
+        <option value="6">Tháng 6</option>
+        <option value="7">Tháng 7</option>
+        <option value="8">Tháng 8</option>
+        <option value="9">Tháng 9</option>
+        <option value="10">Tháng 10</option>
+        <option value="11">Tháng 11</option>
+        <option value="12">Tháng 12</option>
       </select>
-      <button class="btn btn-primary">Xem</button>
+
+      <button class="btn btn-primary" id="view-btn">Xem</button>
     </div>
   </div>
 
@@ -28,7 +39,9 @@ block content %}
       <div class="card shadow-sm h-100">
         <div class="card-body">
           <h6 class="text-muted mb-2">Tổng doanh thu</h6>
-          <div class="fs-4 fw-semibold text-primary">1.280.000.000 đ</div>
+          <div class="fs-4 fw-semibold text-primary" id="total-revenue">
+            1.280.000.000 đ
+          </div>
           <small class="text-muted">Năm 2025 (tính tới hiện tại)</small>
         </div>
       </div>
@@ -37,8 +50,10 @@ block content %}
       <div class="card shadow-sm h-100">
         <div class="card-body">
           <h6 class="text-muted mb-2">Tháng hiện tại</h6>
-          <div class="fs-4 fw-semibold text-success">125.500.000 đ</div>
-          <small class="text-muted">Đã thu 82% kế hoạch tháng</small>
+          <div class="fs-4 fw-semibold text-success" id="monthly-collected">
+            125.500.000 đ
+          </div>
+          <small class="text-muted" id="percentCollected">Đã thu</small>
         </div>
       </div>
     </div>
@@ -46,7 +61,9 @@ block content %}
       <div class="card shadow-sm h-100">
         <div class="card-body">
           <h6 class="text-muted mb-2">Còn phải thu</h6>
-          <div class="fs-4 fw-semibold text-danger">27.800.000 đ</div>
+          <div class="fs-4 fw-semibold text-danger" id="monthly-uncollected">
+            27.800.000 đ
+          </div>
           <small class="text-muted">Cần nhắc phụ huynh hoàn tất</small>
         </div>
       </div>
@@ -55,7 +72,7 @@ block content %}
       <div class="card shadow-sm h-100">
         <div class="card-body">
           <h6 class="text-muted mb-2">Số bé đã đóng</h6>
-          <div class="fs-4 fw-semibold">142 / 170</div>
+          <div class="fs-4 fw-semibold" id="percent"></div>
           <small class="text-muted">Tỷ lệ 83.5%</small>
         </div>
       </div>
@@ -71,10 +88,7 @@ block content %}
           <span class="badge text-bg-secondary">Đơn vị: triệu đồng</span>
         </div>
       </div>
-      {# Placeholder cho Chart.js #}
-      <div class="bg-light border rounded p-3 text-center text-muted">
-        Biểu đồ doanh thu theo tháng (Chart.js) sẽ hiển thị ở đây.
-      </div>
+      <canvas id="revenueChart" style="max-height: 300px"></canvas>
     </div>
   </div>
 
@@ -94,4 +108,67 @@ block content %}
     </div>
   </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='Js/report_page.js') }}"></script>
+<script>
+  init();
+
+  // Khởi tạo Chart.js với dữ liệu mẫu
+  const ctx = document.getElementById("revenueChart");
+  if (ctx) {
+    const labels = [
+      "Tháng 1",
+      "Tháng 2",
+      "Tháng 3",
+      "Tháng 4",
+      "Tháng 5",
+      "Tháng 6",
+      "Tháng 7",
+      "Tháng 8",
+      "Tháng 9",
+      "Tháng 10",
+      "Tháng 11",
+      "Tháng 12",
+    ];
+
+    const data = {
+      labels: labels,
+      datasets: [
+        {
+          label: "Doanh thu (triệu đồng)",
+          data: [65, 59, 80, 81, 56, 55, 40, 70, 85, 90, 75, 95],
+          fill: false,
+          borderColor: "rgb(75, 192, 192)",
+          backgroundColor: "rgba(75, 192, 192, 0.2)",
+          tension: 0.1,
+        },
+      ],
+    };
+
+    const config = {
+      type: "line",
+      data: data,
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: "top",
+          },
+          title: {
+            display: false,
+          },
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+          },
+        },
+      },
+    };
+
+    new Chart(ctx, config);
+  }
+</script>
+
 {% endblock %}

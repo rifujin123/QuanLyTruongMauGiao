@@ -1,3 +1,4 @@
+
 async function fetchDataUrl(url) {
     const response = await fetch(url);
     if (!response.ok) {

@@ -1,17 +1,12 @@
 console.log("js loaded");
+ITEMS_PER_PAGE = 10;
 let totalsData=[];
 let tuitionsFee=[];
 const monthly_total_revenue = document.getElementById("monthly-total-revenue");
 const monthly_collected_ammounts = document.getElementById("monthly-collected-ammounts");
 const monthly_uncollected_ammounts = document.getElementById("monthly-uncollected-ammounts");
 
-baseFee= document.getElementById("base-fee");
-mealFee= document.getElementById("meal-fee");
-extraFee = document.getElementById("extra-fee")
-totalFee=document.getElementById("total-fee")
-paymentStatus = document.getElementById("payment-status")
-let currentTuitions = [];
-let currentStatus = "all";
+const percentCollected = document.getElementById("percentCollected");
 
 async function initData(){
     totalsData = await fetchDataUrl(`/api/tuitions/totals`);
@@ -21,11 +16,9 @@ async function initData(){
 function renderTuitionsTable(tuitionsFee){
     const tbody = document.querySelector(".tuition-body");
     tbody.innerHTML = "";
-    console.log(tbody);
 
     for (let tuition of tuitionsFee){
         const row = document.createElement("tr");
-        console.log(row);
 
         let statusClass = "text-bg-secondary";
         if(tuition.status === "Paid"){
@@ -67,31 +60,61 @@ function getMonthInput(){
     return {year,month};
 }
 
-function applyStatusFilter() {
-  let data = currentTuitions;
+async function renderUI(){
+    await initData();
+    btnFilter();
+    console.log(totalsData);
+    console.log(tuitionsFee);
+    //Lấy tháng
+    document.getElementById("month-btn").addEventListener("click",()=>{
+        const value = document.getElementById("month-input").value; //"2025-12"
+        const ym = getMonthInput();
+        if(!ym) return;
 
-  if (currentStatus !== "all") {
-    data = currentTuitions.filter(t => t.status === currentStatus);
-  }
+        console.log("Year: ",ym.year);
+        console.log("Month: " ,ym.month);
 
-  renderTuitionsTable(data);
+        const total = totalsData.find(
+        item => item.month == Number(ym.month) && item.year == Number(ym.year)
+        );
+
+        if(total)
+        {
+            console.log(total)
+            monthly_total_revenue.textContent = formatNumber(total.monthly_revenue);
+            monthly_collected_ammounts.textContent = formatNumber(total.monthly_collected_amounts);
+            monthly_uncollected_ammounts.textContent = formatNumber(total.monthly_uncollected_amounts);
+        }
+
+    });
 }
 
-function bindStatusButtons() {
-  const group = document.getElementById("status-filter");
-  if (!group) return;
+function btnFilter(){
+    const allBtn = document.getElementById("all-btn");
+    const paidBtn = document.getElementById("paid-btn");
+    const unpaidBtn= document.getElementById("unpaid-btn");
+    let buttons = [];
+    buttons.push(allBtn,paidBtn,unpaidBtn);
 
-  group.querySelectorAll("button").forEach(btn => {
-    btn.addEventListener("click", () => {
-      group.querySelectorAll("button").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
+    buttons.forEach((btn) => {
+        btn.addEventListener("click",()=>{
+            buttons.forEach(b=>b.classList.remove("active"));
+            btn.classList.add("active");
 
+            let filteredTuitions = tuitionsFee;
 
-      currentStatus = btn.dataset.status;
+            if(btn.dataset.status === "Paid"){
+                filteredTuitions =tuitionsFee.filter(t=>t.status == "Paid");
+            } else if (btn.dataset.status === "Unpaid"){
+                filteredTuitions =tuitionsFee.filter(t=>t.status == "Unpaid");
+            }
 
-      applyStatusFilter();
+            renderTuitionsTable(filteredTuitions);
+
+        });
     });
-  });
+
+    allBtn.click();
 }
 
 

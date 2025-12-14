@@ -20,18 +20,6 @@ document.addEventListener("DOMContentLoaded", () => {
   } else if (mode && mode.toLowerCase() === "login") {
     container.classList.remove("active");
   }
-
-  // Tự động xóa flash messages sau 5 giây
-  const flashMessages = document.querySelectorAll(".flash-message");
-  flashMessages.forEach((msg) => {
-    setTimeout(() => {
-      msg.style.transition = "opacity 0.5s";
-      msg.style.opacity = "0";
-      setTimeout(() => {
-        msg.remove();
-      }, 500);
-    }, 5000);
-  });
 });
 
 if (registerBtn) {
@@ -57,10 +45,3 @@ if (loginBtn) {
     window.history.pushState({}, "", url);
   });
 }
-
-// Xóa flash messages khi reload trang nếu không có trong URL (tránh hiển thị lại)
-window.addEventListener("beforeunload", () => {
-  // Flash messages sẽ tự động bị xóa bởi Flask sau khi được đọc
-  // Nhưng để chắc chắn, ta có thể xóa bằng JS
-  removeFlashMessages();
-});
