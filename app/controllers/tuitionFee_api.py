@@ -1,33 +1,48 @@
-from flask import Blueprint, jsonify
-
+from flask import Blueprint, jsonify, request
 from app import db
 from app.models.Models import TuitionFee
-from app.services.tuition_service import total_revenue, monthly_revenue, monthly_collected_amounts, \
-    monthly_uncollected_amounts
+from app.services.tuition_service import (
+    total_revenue, monthly_revenue, monthly_collected_amounts, monthly_uncollected_amounts
+)
+
 
 tuitionFee_api = Blueprint('tuitionFee_api', __name__)
 
-#GET : GET /api/tuitions
+
 @tuitionFee_api.route('/api/tuitions', methods=["GET"])
 def get_tuition():
-    tuitions = TuitionFee.query.all()
-    tuitions_data = []
+    year = request.args.get("year", type=int)
+    month = request.args.get("month", type=int)
 
+    query = TuitionFee.query
+
+    if year is not None:
+        query = query.filter(TuitionFee.year == year)
+    if month is not None:
+        query = query.filter(TuitionFee.month == month)
+
+    tuitions = query.all()
+
+    tuitions_data = []
     for tuition in tuitions:
+        # tránh lỗi null student
+        if tuition.student is None:
+            continue
+
         tuitions_data.append({
             "id": tuition.id,
-            "fee_base":tuition.fee_base,
-            "meal_fee":tuition.meal_fee,
-            "extra_fee":tuition.extra_fee,
+            "fee_base": tuition.fee_base,
+            "meal_fee": tuition.meal_fee,
+            "extra_fee": tuition.extra_fee,
             "status": tuition.status.value,
             "month": tuition.month,
             "year": tuition.year,
-            "student":{
+            "student": {
                 "id": tuition.student.id,
-                "name":tuition.student.name,
+                "name": tuition.student.name,
             }
         })
-    return jsonify(tuitions_data),200
+    return jsonify(tuitions_data), 200
 
 #GET: GET /api/tuitions/totals
 @tuitionFee_api.route('/api/tuitions/totals', methods=["GET"])

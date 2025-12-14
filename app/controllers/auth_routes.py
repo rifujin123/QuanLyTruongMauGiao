@@ -13,9 +13,9 @@ from app.services.user_service import EmailAlreadyExists
 
 auth_service = Blueprint('auth', __name__)
 
+
 @auth_service.route('/signup', methods=['POST'])
 def signup():
-
     if current_user.is_authenticated:
         return redirect(url_for('pages.home'))
 
@@ -47,23 +47,20 @@ def signup():
     flash('Đăng ký thành công! Vui lòng đăng nhập', 'success')
     return redirect(url_for('pages.signup'))
 
+
 @auth_service.route('/login', methods=['POST'])
 def login():
-
     if current_user.is_authenticated:
         return redirect(url_for('pages.home'))
 
     # Get data from form
     email = request.form.get('email')
     password = request.form.get('password')
-    
+
     try:
         user = authenticate_user(email, password)
         login_user(user)
-        identity_changed.send(
-            current_app,
-            identity=Identity(user.id)
-        )
+        identity_changed.send(current_app, identity=Identity(user.id))
         flash('Đăng nhập thành công!', 'success')
         return redirect(url_for('pages.home'))
     except MissingFieldError:
@@ -73,8 +70,8 @@ def login():
 
     return redirect(url_for('pages.signup'))
 
+
 @auth_service.route('/logout', methods=['GET', 'POST'])
 def logout():
     logout_user()
     return redirect(url_for('pages.home'))
-

@@ -55,7 +55,14 @@ block content %}
 <div class="row g-3 mb-4">
   {% if classrooms %} {% for classroom in classrooms %}
   <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
-    <div class="card shadow-sm border-0 h-100">
+    <!-- ✅ ADDED: class="classroom-card" + data-class-id/data-class-name để click lấy nhiệt độ -->
+    <div
+      class="card shadow-sm border-0 h-100 classroom-card"
+      role="button"
+      style="cursor: pointer"
+      data-class-id="{{ classroom.id }}"
+      data-class-name="{{ classroom.name }}"
+    >
       <div class="card-body">
         <div class="d-flex align-items-center gap-3">
           <div class="rounded-3 p-3 bg-light">
@@ -88,6 +95,62 @@ block content %}
   </div>
   {% endfor %} {% endif %}
 </div>
+
+<!-- ✅ ADDED: Bảng nhiệt độ theo lớp (click vào card lớp để load danh sách + nhiệt độ + màu) -->
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-body">
+    <div
+      class="d-flex flex-wrap gap-2 align-items-center justify-content-between mb-3"
+    >
+      <h5 class="mb-0">
+        <i class="fa-solid fa-thermometer-half icon me-2"></i>
+        Nhiệt độ theo lớp:
+        <span id="temp-class-name" class="text-primary">Chưa chọn</span>
+      </h5>
+
+      <div class="d-flex gap-2 align-items-center">
+        <input
+          type="date"
+          id="temp-date"
+          class="form-control form-control-sm"
+          style="width: 170px"
+        />
+        <button class="btn btn-outline-secondary btn-sm" id="temp-refresh">
+          Làm mới
+        </button>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Học sinh</th>
+            <th class="text-end">Nhiệt độ (°C)</th>
+            <th class="text-center">Trạng thái</th>
+          </tr>
+        </thead>
+        <tbody id="temp-tbody">
+          <tr>
+            <td colspan="4" class="text-center text-muted py-4">
+              Bấm vào 1 lớp để xem
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ✅ ADDED: style cho chấm màu -->
+<style>
+  .temp-dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+  }
+</style>
 
 <!-- Biểu đồ và thống kê -->
 <div class="row g-3 mb-4">
@@ -156,6 +219,7 @@ block content %}
     </div>
   </div>
 </div>
+
 <!--Script xử lý dropdown-->
 <script>
   document.addEventListener("DOMContentLoaded", () => {
@@ -213,9 +277,11 @@ block content %}
     });
   });
 </script>
+
 <script>
   const genderStatsByClass = {{ get_gender_stats_by_class | tojson }};
 </script>
+
 <!-- Script cho Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
@@ -227,13 +293,15 @@ block content %}
       type: "pie",
       data: {
         labels: ["Nam", "Nữ"],
-        datasets: [{
-          data: [{{ male_count }}, {{ female_count }}],
-          backgroundColor: [
-            "rgba(54, 162, 235, 0.8)",
-            "rgba(255, 99, 132, 0.8)",
-          ],
-        }],
+        datasets: [
+          {
+            data: [{{ male_count }}, {{ female_count }}],
+            backgroundColor: [
+              "rgba(54, 162, 235, 0.8)",
+              "rgba(255, 99, 132, 0.8)",
+            ],
+          },
+        ],
       },
       options: {
         responsive: true,
@@ -242,4 +310,84 @@ block content %}
     });
   }
 </script>
+
+<!-- ✅ ADDED: JS click card lớp -> gọi API /api/classes/<id>/temperatures -> render bảng -->
+<script>
+  let currentClassId = null;
+  const FEVER_TEMP = 38.0; // >= 38 là sốt
+
+  async function fetchJson(url) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    return await res.json();
+  }
+
+  function renderTempTable(data) {
+    const tbody = document.getElementById("temp-tbody");
+    tbody.innerHTML = "";
+
+    if (!data || data.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-4">Không có dữ liệu</td></tr>`;
+      return;
+    }
+
+    for (const row of data) {
+      const temp = row.temperature;
+
+      let label = "Chưa đo";
+      let badge = "text-bg-secondary";
+      let dot = "bg-secondary";
+
+      if (temp !== null && temp !== undefined) {
+        if (Number(temp) >= FEVER_TEMP) {
+          label = "Sốt";
+          badge = "text-bg-danger";
+          dot = "bg-danger";
+        } else {
+          label = "Bình thường";
+          badge = "text-bg-success";
+          dot = "bg-success";
+        }
+      }
+
+      tbody.insertAdjacentHTML(
+        "beforeend",
+        `
+        <tr>
+          <td>${row.student_name}</td>
+          <td class="text-end">${temp ?? "-"}</td>
+          <td class="text-center"><span class="badge ${badge}">${label}</span></td>
+        </tr>
+      `
+      );
+    }
+  }
+
+  async function loadClassTemps() {
+    if (!currentClassId) return;
+    const date = document.getElementById("temp-date").value;
+
+    const url = date
+      ? `/api/classes/${currentClassId}/temperatures?date=${date}`
+      : `/api/classes/${currentClassId}/temperatures`;
+
+    const data = await fetchJson(url);
+    renderTempTable(data);
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".classroom-card").forEach((card) => {
+      card.addEventListener("click", async () => {
+        currentClassId = card.dataset.classId;
+        document.getElementById("temp-class-name").textContent =
+          card.dataset.className || ("#" + currentClassId);
+        await loadClassTemps();
+      });
+    });
+
+    document.getElementById("temp-date").addEventListener("change", loadClassTemps);
+    document.getElementById("temp-refresh").addEventListener("click", loadClassTemps);
+  });
+</script>
+
 {% endblock %}

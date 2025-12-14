@@ -1,18 +1,18 @@
-from datetime import datetime
-from flask import blueprints, request, jsonify
+from datetime import date
+from flask import Blueprint, request, jsonify
+
 from app.utils import _get_payload, _string_to_date, get_filter_params
 from app import db
 from app.controllers.page_routes import roles_required
 from app.models.Models import Student
 from app.services.student_service import search_students
 
-student_api = blueprints.Blueprint('student_api', __name__)
+student_api = Blueprint('student_api', __name__)
 
-#GET : GET api/students
+# GET: /api/students
 @student_api.route('/api/students', methods=['GET'])
 @roles_required('Teacher')
 def get_students():
-
     filters = get_filter_params()
     students = search_students(**filters)
 
@@ -38,7 +38,8 @@ def get_students():
 
     return jsonify(students_data), 200
 
-#DELETE: DELETE api/students/<int:student_id>
+
+# DELETE: /api/students/<int:student_id>
 @student_api.route('/api/students/<int:student_id>', methods=['DELETE'])
 @roles_required('Teacher')
 def delete_student(student_id):
@@ -50,24 +51,25 @@ def delete_student(student_id):
     db.session.commit()
     return jsonify({"message": "student deleted"}), 200
 
-#POST: POST api/students
+
+# POST: /api/students
 @student_api.route('/api/students', methods=['POST'])
 @roles_required('Teacher')
 def create_student():
-    from datetime import date
-    
     payload = _get_payload()
+
     required_fields = ['name', 'dob', 'gender', 'address']
     for f in required_fields:
         if f not in payload:
             return jsonify({"message": f"{f} is required"}), 400
 
     dob_value = _string_to_date(payload['dob'])
-    
-    # Tính tuổi từ ngày sinh
+    if dob_value is None:
+        return jsonify({"message": "dob is invalid"}), 400
+
     today = date.today()
     age = today.year - dob_value.year - ((today.month, today.day) < (dob_value.month, dob_value.day))
-    
+
     new_student = Student(
         name=payload['name'],
         age=age,
@@ -93,7 +95,8 @@ def create_student():
         }
     }), 201
 
-#PUT: api/students/<int:student_id>
+
+# PUT: /api/students/<int:student_id>
 @student_api.route('/api/students/<int:student_id>', methods=['PUT'])
 @roles_required('Teacher')
 def update_student(student_id):
@@ -107,16 +110,20 @@ def update_student(student_id):
         if f not in payload:
             return jsonify({"message": f"{f} is required"}), 400
 
+    dob_value = _string_to_date(payload['dob'])
+    if dob_value is None:
+        return jsonify({"message": "dob is invalid"}), 400
+
     student.name = payload['name']
-    student.dob = _string_to_date(payload['dob'])
+    student.dob = dob_value
     student.gender = payload['gender']
     student.class_id = payload['class_id']
-    student.parent_id=payload['parent_id']
+    student.parent_id = payload['parent_id']
 
     db.session.commit()
     return jsonify({
         "message": "student updated",
-        "student":{
+        "student": {
             "id": student.id,
             "name": student.name,
             "dob": student.formatted_dob,
@@ -124,9 +131,10 @@ def update_student(student_id):
             "class_id": student.class_id,
             "parent_id": student.parent_id
         }
-    }),200
+    }), 200
 
-#PATCH: PATCH api/students/<int:student_id>
+
+# PATCH: /api/students/<int:student_id>
 @student_api.route('/api/students/<int:student_id>', methods=['PATCH'])
 @roles_required('Teacher')
 def update_partial_student(student_id):
@@ -138,8 +146,13 @@ def update_partial_student(student_id):
 
     if "name" in payload:
         student.name = payload['name']
+
     if "dob" in payload:
-        student.dob = _string_to_date(payload["dob"])
+        dob_value = _string_to_date(payload["dob"])
+        if dob_value is None:
+            return jsonify({"message": "dob is invalid"}), 400
+        student.dob = dob_value
+
     if "gender" in payload:
         student.gender = payload['gender']
     if "class_id" in payload:
@@ -150,7 +163,7 @@ def update_partial_student(student_id):
     db.session.commit()
     return jsonify({
         "message": "student updated",
-        "student":{
+        "student": {
             "id": student.id,
             "name": student.name,
             "dob": student.formatted_dob,
@@ -158,5 +171,4 @@ def update_partial_student(student_id):
             "class_id": student.class_id,
             "parent_id": student.parent_id
         }
-    })
-
+    }), 200

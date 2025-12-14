@@ -1,9 +1,15 @@
-from flask import Blueprint, jsonify
-from sqlalchemy.sql.functions import current_user
+from datetime import datetime, time
+
+from flask import Blueprint, jsonify, request
 from flask_login import current_user
+from sqlalchemy import func, and_
+from sqlalchemy.orm import aliased
+
 from app import db
 from app.models.Models import HealthRecord, Student
 from app.utils import format_date, time_ago, _get_payload
+
+
 
 health_api = Blueprint('health_api', __name__)
 
@@ -125,3 +131,49 @@ def update_health_record_by_id(student_id, record_id):
             "note": payload['note']
         }
     })
+
+@health_api.route("/api/classes/<int:class_id>/temperatures", methods=["GET"])
+def get_class_temperatures(class_id):
+    # optional: lọc theo ngày (YYYY-MM-DD)
+    date_str = request.args.get("date")
+    day_start = day_end = None
+    if date_str:
+        d = datetime.strptime(date_str, "%Y-%m-%d").date()
+        day_start = datetime.combine(d, time.min)
+        day_end = datetime.combine(d, time.max)
+
+    HR = aliased(HealthRecord)
+
+    # subquery lấy lần đo mới nhất theo student_id
+    subq = db.session.query(
+        HealthRecord.student_id.label("student_id"),
+        func.max(HealthRecord.date_created).label("max_date")
+    )
+
+    if day_start and day_end:
+        subq = subq.filter(and_(HealthRecord.date_created >= day_start,
+                                HealthRecord.date_created <= day_end))
+
+    subq = subq.group_by(HealthRecord.student_id).subquery()
+
+    # lấy danh sách học sinh trong lớp + join lần đo mới nhất (nếu có)
+    q = db.session.query(
+        Student.id,
+        Student.name,
+        HR.temperature,
+        HR.date_created
+    ).filter(Student.class_id == class_id) \
+     .outerjoin(subq, subq.c.student_id == Student.id) \
+     .outerjoin(HR, and_(HR.student_id == Student.id, HR.date_created == subq.c.max_date)) \
+     .order_by(Student.name.asc())
+
+    data = []
+    for sid, name, temp, dt in q.all():
+        data.append({
+            "student_id": sid,
+            "student_name": name,
+            "temperature": temp,  # có thể None nếu chưa đo
+            "measured_at": dt.isoformat() if dt else None
+        })
+
+    return jsonify(data), 200

@@ -10,6 +10,8 @@ mealFee= document.getElementById("meal-fee");
 extraFee = document.getElementById("extra-fee")
 totalFee=document.getElementById("total-fee")
 paymentStatus = document.getElementById("payment-status")
+let currentTuitions = [];
+let currentStatus = "all";
 
 async function initData(){
     totalsData = await fetchDataUrl(`/api/tuitions/totals`);
@@ -65,34 +67,66 @@ function getMonthInput(){
     return {year,month};
 }
 
-async function renderUI(){
-    await initData();
-    renderTuitionsTable(tuitionsFee);
-    console.log(totalsData);
-    console.log(tuitionsFee);
-    //Lấy tháng
-    document.getElementById("month-btn").addEventListener("click",()=>{
-        const value = document.getElementById("month-input").value; //"2025-12"
-        const ym = getMonthInput();
-        if(!ym) return;
+function applyStatusFilter() {
+  let data = currentTuitions;
 
-        console.log("Year: ",ym.year);
-        console.log("Month: " ,ym.month);
+  if (currentStatus !== "all") {
+    data = currentTuitions.filter(t => t.status === currentStatus);
+  }
 
-        const total = totalsData.find(
-        item => item.month === Number(ym.month) && item.year === Number(ym.year)
-        );
-        console.log(total)
-        if(total)
-        {
-            monthly_total_revenue.textContent = formatNumber(total.monthly_revenue);
-            monthly_collected_ammounts.textContent = formatNumber(total.monthly_collected_amounts);
-            monthly_uncollected_ammounts.textContent = formatNumber(total.monthly_uncollected_amounts);
-        }
-
-
-
-    });
+  renderTuitionsTable(data);
 }
+
+function bindStatusButtons() {
+  const group = document.getElementById("status-filter");
+  if (!group) return;
+
+  group.querySelectorAll("button").forEach(btn => {
+    btn.addEventListener("click", () => {
+      group.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+
+
+      currentStatus = btn.dataset.status;
+
+      applyStatusFilter();
+    });
+  });
+}
+
+
+async function renderUI(){
+  await initData();
+
+  currentTuitions = tuitionsFee;
+  bindStatusButtons();
+  applyStatusFilter();
+
+  document.getElementById("month-btn").addEventListener("click", async () => {
+    const ym = getMonthInput();
+    if(!ym) return;
+
+    const total = totalsData.find(
+      item => item.month === Number(ym.month) && item.year === Number(ym.year)
+    );
+
+    if(total){
+      monthly_total_revenue.textContent = formatNumber(total.monthly_revenue);
+      monthly_collected_ammounts.textContent = formatNumber(total.monthly_collected_amounts);
+      monthly_uncollected_ammounts.textContent = formatNumber(total.monthly_uncollected_amounts);
+    } else {
+      monthly_total_revenue.textContent = "0";
+      monthly_collected_ammounts.textContent = "0";
+      monthly_uncollected_ammounts.textContent = "0";
+    }
+
+
+    currentTuitions = await fetchDataUrl(`/api/tuitions?year=${ym.year}&month=${ym.month}`);
+
+    applyStatusFilter();
+  });
+}
+
+
 
 
