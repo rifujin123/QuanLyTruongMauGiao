@@ -266,7 +266,7 @@ def create_tuitionfees():
         # Get invoices list for indexing
         invoices = Invoice.query.all()
         
-        # Status enum mapping
+        # Status enum mapping (dùng chung cho các trường status)
         status_map = {
             'Paid': PaymentStatusEnum.Paid,
             'Unpaid': PaymentStatusEnum.Unpaid,
@@ -289,6 +289,12 @@ def create_tuitionfees():
             if invoice_index is not None and invoice_index < len(invoices):
                 invoice_id = invoices[invoice_index].id
 
+            # Đọc trạng thái từng khoản; fallback về 'Unpaid' nếu thiếu
+            base_status_str = fee_data.get('base_status', fee_data.get('status', 'Unpaid'))
+            meal_status_str = fee_data.get('meal_status', fee_data.get('status', 'Unpaid'))
+            extra_status_str = fee_data.get('extra_status', fee_data.get('status', 'Unpaid'))
+            overall_status_str = fee_data.get('status', 'Unpaid')
+
             fee = TuitionFee(
                 month=fee_data['month'],
                 year=fee_data['year'],
@@ -296,7 +302,10 @@ def create_tuitionfees():
                 meal_fee=fee_data['meal_fee'],
                 extra_fee=fee_data['extra_fee'],
                 payment_date=payment_date,
-                status=status_map.get(fee_data['status'], PaymentStatusEnum.Unpaid),
+                base_status=status_map.get(base_status_str, PaymentStatusEnum.Unpaid),
+                meal_status=status_map.get(meal_status_str, PaymentStatusEnum.Unpaid),
+                extra_status=status_map.get(extra_status_str, PaymentStatusEnum.Unpaid),
+                status=status_map.get(overall_status_str, PaymentStatusEnum.Unpaid),
                 invoice_id=invoice_id,
                 student_id=student_id,
             )

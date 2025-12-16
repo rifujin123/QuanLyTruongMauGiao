@@ -150,6 +150,26 @@ async function main() {
 
       if (latestTuition.id) {
         await loadTuitionItemsTable(latestTuition.id);
+
+        const payNowBtn = document.getElementById("pay-now-btn");
+        const viewReceiptBtn = document.getElementById("view-receipt-btn");
+        if (payNowBtn && viewReceiptBtn) {
+          if (latestTuition.status === "Paid") {
+            payNowBtn.classList.add("d-none");
+            viewReceiptBtn.classList.remove("d-none");
+          } else {
+            payNowBtn.classList.remove("d-none");
+            viewReceiptBtn.classList.add("d-none");
+          }
+        }
+      }
+    } else {
+      // ko có học phí thì mặc định chỉ hiện thanh toán
+      const payNowBtn = document.getElementById("pay-now-btn");
+      const viewReceiptBtn = document.getElementById("view-receipt-btn");
+      if (payNowBtn && viewReceiptBtn) {
+        payNowBtn.classList.remove("d-none");
+        viewReceiptBtn.classList.add("d-none");
       }
     }
 
