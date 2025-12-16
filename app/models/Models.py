@@ -1,5 +1,11 @@
 import enum
 from typing import List
+from datetime import datetime
+
+from sqlalchemy import case, and_
+from sqlalchemy.ext.hybrid import hybrid_property
+
+from app import db
 
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship, column_property
@@ -104,12 +110,46 @@ class TuitionFee(db.Model):
     meal_fee = db.Column(db.Float, nullable=False)
     extra_fee = db.Column(db.Float, nullable=False)
     total = column_property(fee_base + meal_fee + extra_fee)
+
+    base_status = db.Column(db.Enum(PaymentStatusEnum), default=PaymentStatusEnum.Unpaid, nullable=False)
+    meal_status = db.Column(db.Enum(PaymentStatusEnum), default=PaymentStatusEnum.Unpaid, nullable=False)
+    extra_status = db.Column(db.Enum(PaymentStatusEnum), default=PaymentStatusEnum.Unpaid, nullable=False)
+
     payment_date = db.Column(db.DateTime)
-    status = db.Column(db.Enum(PaymentStatusEnum), nullable=False)
+
+    status = db.Column(db.Enum(PaymentStatusEnum), nullable=False, default=PaymentStatusEnum.Unpaid)
     #relationships
     invoice_id = db.Column(db.Integer, db.ForeignKey('invoices.id'))
     student_id = db.Column(db.Integer, db.ForeignKey('students.id'))
     student = relationship("Student", uselist=False, back_populates="tuitionfee")
+
+    # Overall status tính từ 3 khoản
+    @hybrid_property
+    def overall_status(self):
+        if (self.base_status == PaymentStatusEnum.Paid and
+                self.meal_status == PaymentStatusEnum.Paid and
+                self.extra_status == PaymentStatusEnum.Paid):
+            return PaymentStatusEnum.Paid
+        return PaymentStatusEnum.Unpaid
+
+    @overall_status.expression
+    def overall_status(cls):
+        return case(
+            (
+                and_(cls.base_status == PaymentStatusEnum.Paid,
+                     cls.meal_status == PaymentStatusEnum.Paid,
+                     cls.extra_status == PaymentStatusEnum.Paid),
+                PaymentStatusEnum.Paid
+            ),
+            else_=PaymentStatusEnum.Unpaid
+        )
+
+    def sync_overall_status(self):
+        """Gọi sau khi cập nhật 1 khoản để đồng bộ status tổng."""
+        self.status = self.overall_status
+        if self.status == PaymentStatusEnum.Paid and self.payment_date is None:
+            self.payment_date = datetime.utcnow()
+
 
 class Invoice(db.Model):
     __tablename__ = "invoices"

@@ -17,8 +17,6 @@ def roles_required(*role_names):
         @wraps(f)
         @login_required
         def decorated_function(*args, **kwargs):
-            # @login_required đã đảm bảo user đã authenticated
-            # Check if user has any of the required roles
             user_roles = [role.name for role in current_user.roles]
             if not any(role in user_roles for role in role_names):
                 abort(403)
@@ -29,6 +27,10 @@ def roles_required(*role_names):
 
 @page_routes.route('/')
 def home():
+    if current_user.is_authenticated:
+        user_roles = [role.name for role in current_user.roles]
+        if 'Admin' in user_roles:
+            return redirect(url_for('admin.index'))
     return render_template('pages/home.html', Title='Trang chủ')
 
 
@@ -110,29 +112,15 @@ def parentnotification():
 
 @page_routes.route('/signup', methods=['GET'])
 def signup():
+    if current_user.is_authenticated:
+        user_roles = [role.name for role in current_user.roles]
+        if 'Admin' in user_roles:
+            return redirect(url_for('admin.index'))
     return render_template('pages/login.html')
 
 @page_routes.route('/administrator')
 @roles_required('Admin')
 def administrator():
     return redirect(url_for('admin.index'))
-
-# Admin custom pages (Flask-Admin style layout)
-@page_routes.route('/admin/fee')
-@roles_required('Admin')
-def admin_fee():
-    return render_template('admin/fee.html', Title='Cấu hình học phí')
-
-
-@page_routes.route('/admin/class-size')
-@roles_required('Admin')
-def admin_class_size():
-    return render_template('admin/class_size.html', Title='Cấu hình sĩ số lớp')
-
-
-@page_routes.route('/admin/user')
-@roles_required('Admin')
-def admin_user_list():
-    return render_template('admin/list.html', Title='Quản lý user')
 
 

@@ -17,6 +17,10 @@ auth_service = Blueprint('auth', __name__)
 @auth_service.route('/signup', methods=['POST'])
 def signup():
     if current_user.is_authenticated:
+        # Nếu đã đăng nhập, kiểm tra role để redirect
+        user_roles = [role.name for role in current_user.roles]
+        if 'Admin' in user_roles:
+            return redirect(url_for('admin.index'))
         return redirect(url_for('pages.home'))
 
     # get data from form
@@ -51,6 +55,10 @@ def signup():
 @auth_service.route('/login', methods=['POST'])
 def login():
     if current_user.is_authenticated:
+        # Nếu đã đăng nhập, kiểm tra role để redirect
+        user_roles = [role.name for role in current_user.roles]
+        if 'Admin' in user_roles:
+            return redirect(url_for('admin.index'))
         return redirect(url_for('pages.home'))
 
     # Get data from form
@@ -62,6 +70,11 @@ def login():
         login_user(user)
         identity_changed.send(current_app, identity=Identity(user.id))
         flash('Đăng nhập thành công!', 'success')
+        
+        # Kiểm tra role để redirect đúng trang
+        user_roles = [role.name for role in user.roles]
+        if 'Admin' in user_roles:
+            return redirect(url_for('admin.index'))
         return redirect(url_for('pages.home'))
     except MissingFieldError:
         flash('Vui lòng nhập đầy đủ thông tin', 'error')

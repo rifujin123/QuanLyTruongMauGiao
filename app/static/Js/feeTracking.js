@@ -1,0 +1,230 @@
+let studentId = null;
+let parentId = null;
+let thisMonth, thisYear;
+let tuitions = [];
+let baseFeeValue = 0,
+  mealFeeValue = 0,
+  extraFeeValue = 0,
+  totalFeeValue = 0;
+
+// DOM elements
+const total_fee = document.getElementById("total-fee");
+const base_fee = document.getElementById("base-fee");
+const meal_fee = document.getElementById("meal-fee");
+const extra_fee = document.getElementById("extra-fee");
+
+// Initialize date
+const date = new Date();
+thisMonth = date.getMonth() + 1;
+thisYear = date.getFullYear();
+
+function queryTuitionFeeByMonthYear(month, year) {
+  if (!tuitions || tuitions.length === 0) {
+    return [];
+  }
+
+  let filterTuitions = [];
+  tuitions.forEach((tuition) => {
+    if (
+      Number(tuition.month) === Number(month) &&
+      Number(tuition.year) === Number(year)
+    ) {
+      filterTuitions.push(tuition);
+    }
+  });
+  return filterTuitions;
+}
+
+async function loadTuitionItemsTable(tuitionId) {
+  try {
+    const data = await fetchDataUrl(`/api/tuitions/${tuitionId}/items`);
+
+    const items = data.items;
+    const tbody = document.querySelector("#tuition-items-tbody");
+
+    tbody.innerHTML = "";
+    items.forEach((item) => {
+      const statusClass =
+        item.status === "Paid" ? "text-bg-success" : "text-bg-warning";
+      const statusText = item.status === "Paid" ? "Đã thu" : "Chưa thu";
+      const btnText = item.status === "Paid" ? "Xem biên lai" : "Thanh toán";
+      const btnClass =
+        item.status === "Paid" ? "btn-outline-secondary" : "btn-primary";
+
+      const row = `
+        <tr>
+          <td>${item.label}</td>
+          <td class="text-end">${formatNumber(item.amount)} đ</td>
+          <td class="text-center">
+            <span class="badge ${statusClass}">${statusText}</span>
+          </td>
+          <td class="text-end">05/12/2025</td>
+          <td class="text-end">
+            <a href="#" class="btn btn-sm ${btnClass}"
+               onclick="handleItemAction(${tuitionId}, '${item.type}', '${
+        item.status
+      }')">
+              ${btnText}
+            </a>
+          </td>
+        </tr>
+      `;
+      tbody.innerHTML += row;
+    });
+  } catch (error) {
+    console.error("Error loading tuition items:", error);
+  }
+}
+
+async function loadStudentOptions() {
+  const select = document.getElementById("studentSelector");
+  const nameLabel = document.getElementById("student-name-label");
+  if (!select) return;
+
+  // Lấy danh sách con của phụ huynh hiện tại
+  const students = await fetchDataUrl(`/api/parent/students`);
+  if (!students || !Array.isArray(students) || students.length === 0) {
+    console.warn("No students for current parent");
+    return;
+  }
+
+  // Xóa option mẫu cũ (hard-code)
+  select.innerHTML = "";
+
+  students.forEach((s) => {
+    const opt = document.createElement("option");
+    opt.value = s.id;
+    opt.textContent = s.classroom?.name
+      ? `${s.name} - ${s.classroom.name}`
+      : s.name;
+    select.appendChild(opt);
+  });
+
+  // chọn bé đầu tiên mặc định
+  studentId = students[0].id;
+  select.value = String(studentId);
+
+  if (nameLabel) {
+    nameLabel.textContent = select.options[select.selectedIndex].textContent;
+  }
+}
+
+function getSelectedMonthYear() {
+  const monthInput = document.getElementById("monthSelector");
+  if (monthInput && monthInput.value) {
+    const [yearStr, monthStr] = monthInput.value.split("-");
+    return [Number(monthStr), Number(yearStr)];
+  }
+  return [thisMonth, thisYear];
+}
+
+async function main() {
+  try {
+    const allTuitions = await fetchDataUrl(`/api/tuitions`);
+    if (!allTuitions) {
+      console.error("Failed to fetch tuitions");
+      return;
+    }
+
+    tuitions = allTuitions.filter(
+      (t) => t.student && String(t.student.id) === String(studentId)
+    );
+    console.log("Tuitions for student:", tuitions);
+
+    const [month, year] = getSelectedMonthYear();
+    let latestTuitionArray = queryTuitionFeeByMonthYear(month, year);
+
+    let defaultTuitionData = {
+      total_fee: 0,
+      extra_fee: 0,
+      fee_base: 0,
+      meal_fee: 0,
+      status: "Unpaid",
+    };
+
+    let latestTuition = null;
+    if (latestTuitionArray && latestTuitionArray.length > 0) {
+      latestTuition = latestTuitionArray[0];
+
+      if (latestTuition.id) {
+        await loadTuitionItemsTable(latestTuition.id);
+      }
+    }
+
+    if (!latestTuition) {
+      console.log("Chưa có dữ liệu cho tháng hiện tại");
+      latestTuition = defaultTuitionData;
+    } else {
+      if (!latestTuition.total_fee) {
+        latestTuition.total_fee =
+          latestTuition.fee_base +
+          latestTuition.meal_fee +
+          latestTuition.extra_fee;
+      }
+    }
+
+    console.log("Latest tuition:", latestTuition);
+
+    if (total_fee) {
+      total_fee.textContent = formatNumber(latestTuition.total_fee || 0) + " đ";
+    }
+    if (base_fee) {
+      base_fee.textContent = formatNumber(latestTuition.fee_base || 0) + " đ";
+    }
+    if (meal_fee) {
+      meal_fee.textContent = formatNumber(latestTuition.meal_fee || 0) + " đ";
+    }
+    if (extra_fee) {
+      extra_fee.textContent = formatNumber(latestTuition.extra_fee || 0) + " đ";
+    }
+  } catch (error) {
+    console.error("Error in main function:", error);
+  }
+}
+
+function handleItemAction(tuitionId, itemType, status) {
+  console.log("Handle action:", tuitionId, itemType, status);
+  // TODO: Implement payment or view receipt logic
+  if (status === "Paid") {
+    alert("Xem biên lai");
+  } else {
+    alert("Thanh toán");
+  }
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+  // set default month = tháng hiện tại
+  const monthInput = document.getElementById("monthSelector");
+  if (monthInput) {
+    const mm = String(thisMonth).padStart(2, "0");
+    monthInput.value = `${thisYear}-${mm}`;
+  }
+
+  // load danh sách con, sau đó load học phí cho bé đầu tiên
+  await loadStudentOptions();
+  if (studentId != null) {
+    await main();
+  }
+
+  // khi chọn bé khác
+  const select = document.getElementById("studentSelector");
+  const nameLabel = document.getElementById("student-name-label");
+  if (select) {
+    select.addEventListener("change", async () => {
+      studentId = select.value;
+      if (nameLabel) {
+        nameLabel.textContent =
+          select.options[select.selectedIndex].textContent;
+      }
+      await main();
+    });
+  }
+
+  // khi bấm nút "Xem" theo tháng
+  const filterBtn = document.getElementById("filter-btn");
+  if (filterBtn) {
+    filterBtn.addEventListener("click", async () => {
+      await main();
+    });
+  }
+});

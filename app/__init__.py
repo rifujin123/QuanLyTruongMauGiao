@@ -1,5 +1,4 @@
 from flask import Flask
-from flask_admin.theme import Bootstrap4Theme
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 from flask_sqlalchemy import SQLAlchemy
@@ -11,7 +10,6 @@ db = SQLAlchemy()
 login_manager = LoginManager()
 admin = Admin(
     name="microblog",
-    theme=Bootstrap4Theme(swatch="cerulean"),
 )
 babel = Babel()
 

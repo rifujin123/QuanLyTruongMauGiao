@@ -1,5 +1,6 @@
 from datetime import date
 from flask import Blueprint, request, jsonify
+from flask_login import current_user
 
 from app.utils import _get_payload, _string_to_date, get_filter_params
 from app import db
@@ -37,6 +38,32 @@ def get_students():
         })
 
     return jsonify(students_data), 200
+
+
+@student_api.route("/api/parent/students", methods=["GET"])
+@roles_required("Parent")
+def get_students_for_current_parent():
+    """
+    Trả về danh sách học sinh của phụ huynh đang đăng nhập (Parent).
+    Dùng cho các màn Parent như theo dõi học phí, thông tin trẻ, v.v.
+    """
+    parent_id = current_user.id
+    students = Student.query.filter_by(parent_id=parent_id).all()
+
+    data = []
+    for s in students:
+        data.append({
+            "id": s.id,
+            "name": s.name,
+            "dob": s.formatted_dob,
+            "gender": s.gender.value,
+            "classroom": {
+                "id": s.classroom.id if s.classroom else None,
+                "name": s.classroom.name if s.classroom else "Chưa phân lớp",
+            },
+        })
+
+    return jsonify(data), 200
 
 
 # DELETE: /api/students/<int:student_id>

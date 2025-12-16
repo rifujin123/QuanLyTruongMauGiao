@@ -326,9 +326,8 @@ block breadcrumb_current %}Thông tin trẻ{% endblock %} {% block head %}
   </div>
 </div>
 <script src="{{ url_for('static', filename='Js/kid_page.js') }}"></script>
-<script>fetchKidDataById({{parent_id}})</script>
-<script>fetchHealthRecordById({{student_id}})</script>
-<script>fetchHealthHistoryById({{student_id}})</script>
-<script>loadKidSelectOptions({{parent_id}})</script>
+<script>
+  loadKidSelectOptions({{ parent_id }}, {{ student_id }});
+</script>
 {% endblock %}
 

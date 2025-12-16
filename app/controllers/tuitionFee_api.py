@@ -65,3 +65,34 @@ def get_totals():
         })
 
     return jsonify(totals_data), 200
+
+@tuitionFee_api.route("/api/tuitions/<int:tuition_id>/items", methods=["GET"])
+def get_tuition_items(tuition_id):
+    tuition = TuitionFee.query.get_or_404(tuition_id)
+
+    items = [
+        {
+            "label": "Học phí cơ bản",
+            "type": "base_fee",
+            "amount": tuition.fee_base,
+            "status": tuition.base_status.value,
+        },
+        {
+            "label": "Tiền ăn",
+            "type": "meal_fee",
+            "amount": tuition.meal_fee,
+            "status": tuition.meal_status.value,
+        },
+        {
+            "label": "Phụ thu khác",
+            "type": "extra_fee",
+            "amount": tuition.extra_fee,
+            "status": tuition.extra_status.value,
+        },
+    ]
+
+    return {
+        "student": tuition.student.name,
+        "items": items,
+        "overall_status": tuition.overall_status.value  # hybrid_property
+    }, 200
