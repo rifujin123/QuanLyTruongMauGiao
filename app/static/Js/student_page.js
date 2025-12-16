@@ -217,7 +217,6 @@ async function saveStudent() {
   }
 }
 
-// Khởi tạo bộ lọc, tìm kiếm, phân trang và gọi fetch lần đầu
 function init() {
   // đọc q từ URL nếu có
   const urlParams = new URLSearchParams(window.location.search);

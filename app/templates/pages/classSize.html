@@ -96,61 +96,7 @@ block content %}
   {% endfor %} {% endif %}
 </div>
 
-<!-- ✅ ADDED: Bảng nhiệt độ theo lớp (click vào card lớp để load danh sách + nhiệt độ + màu) -->
-<div class="card border-0 shadow-sm mb-4">
-  <div class="card-body">
-    <div
-      class="d-flex flex-wrap gap-2 align-items-center justify-content-between mb-3"
-    >
-      <h5 class="mb-0">
-        <i class="fa-solid fa-thermometer-half icon me-2"></i>
-        Nhiệt độ theo lớp:
-        <span id="temp-class-name" class="text-primary">Chưa chọn</span>
-      </h5>
 
-      <div class="d-flex gap-2 align-items-center">
-        <input
-          type="date"
-          id="temp-date"
-          class="form-control form-control-sm"
-          style="width: 170px"
-        />
-        <button class="btn btn-outline-secondary btn-sm" id="temp-refresh">
-          Làm mới
-        </button>
-      </div>
-    </div>
-
-    <div class="table-responsive">
-      <table class="table align-middle mb-0">
-        <thead class="table-light">
-          <tr>
-            <th>Học sinh</th>
-            <th class="text-end">Nhiệt độ (°C)</th>
-            <th class="text-center">Trạng thái</th>
-          </tr>
-        </thead>
-        <tbody id="temp-tbody">
-          <tr>
-            <td colspan="4" class="text-center text-muted py-4">
-              Bấm vào 1 lớp để xem
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
-
-<!-- ✅ ADDED: style cho chấm màu -->
-<style>
-  .temp-dot {
-    display: inline-block;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-  }
-</style>
 
 <!-- Biểu đồ và thống kê -->
 <div class="row g-3 mb-4">
@@ -220,7 +166,7 @@ block content %}
   </div>
 </div>
 
-<!--Script xử lý dropdown-->
+<!--dropdown-->
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     const menu = document.getElementById("classroomFilterMenu");
@@ -282,7 +228,7 @@ block content %}
   const genderStatsByClass = {{ get_gender_stats_by_class | tojson }};
 </script>
 
-<!-- Script cho Chart.js -->
+<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
   let genderChart = null;

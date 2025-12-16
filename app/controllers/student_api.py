@@ -1,11 +1,12 @@
 from datetime import date
 from flask import Blueprint, request, jsonify
 from flask_login import current_user
+from sqlalchemy import func
 
 from app.utils import _get_payload, _string_to_date, get_filter_params
 from app import db
 from app.controllers.page_routes import roles_required
-from app.models.Models import Student
+from app.models.Models import Student, HealthRecord
 from app.services.student_service import search_students
 
 student_api = Blueprint('student_api', __name__)
@@ -19,6 +20,13 @@ def get_students():
 
     students_data = []
     for student in students:
+        # Lấy nhiệt độ mới nhất của học sinh
+        latest_health = db.session.query(HealthRecord).filter_by(
+            student_id=student.id
+        ).order_by(HealthRecord.date_created.desc()).first()
+        
+        latest_temperature = latest_health.temperature if latest_health else None
+        
         students_data.append({
             'id': student.id,
             'name': student.name,
@@ -34,7 +42,8 @@ def get_students():
                 'id': student.parent.id if student.parent else None,
                 'name': student.parent.name if student.parent else "",
                 'phone': student.parent.phone if student.parent else "",
-            }
+            },
+            'latest_temperature': latest_temperature
         })
 
     return jsonify(students_data), 200

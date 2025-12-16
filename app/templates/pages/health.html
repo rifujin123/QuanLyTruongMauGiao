@@ -110,12 +110,13 @@ content %}
         <thead class="table-light">
           <tr>
             <th style="width: 5%">STT</th>
-            <th style="width: 20%">Họ tên trẻ</th>
+            <th style="width: 15%">Họ tên trẻ</th>
             <th style="width: 12%">Ngày sinh</th>
             <th style="width: 10%">Giới tính</th>
             <th style="width: 15%">Lớp</th>
             <th style="width: 18%">Ghi nhận gần nhất</th>
-            <th style="width: 20%">Thao tác</th>
+            <th style="width: 15%">Thao tác</th>
+            <th style="width: 20%">Trạng thái</th>
           </tr>
         </thead>
         <tbody id="health_list">
@@ -157,10 +158,11 @@ content %}
                 <i class="fa-solid fa-heart-pulse me-1"></i>Ghi nhận
               </button>
             </td>
+            <td id="status-{{student.id}}"></td>
           </tr>
           {% endfor %} {% else %}
           <tr>
-            <td colspan="7" class="text-center text-muted py-4">
+            <td colspan="8" class="text-center text-muted py-4">
               <i class="fa-solid fa-inbox fa-2x mb-2"></i>
               <p class="mb-0">Không có học sinh nào</p>
             </td>

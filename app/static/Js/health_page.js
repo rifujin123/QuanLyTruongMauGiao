@@ -13,7 +13,6 @@ const heightInput = document.getElementById("height");
 const temperatureInput = document.getElementById("temperature");
 const noteInput = document.getElementById("note");
 
-
 function renderHealthPage() {
   const start = (healthCurrentPage - 1) * healthPerPage;
   const end = start + healthPerPage;
@@ -101,15 +100,14 @@ if (document.readyState === "loading") {
   initHealthPagination();
 }
 document.addEventListener("DOMContentLoaded", () => {
-    loadAllLatestRecords();
+  loadAllLatestRecords();
 });
 setInterval(() => {
-    loadAllLatestRecords();
+  loadAllLatestRecords();
 }, 60000);
 
-
 //Xử healthModal
-async function createHealthRecord(studentID)    {
+async function createHealthRecord(studentID) {
   if (!studentID) {
     studentID = document.getElementById("student-id")?.value;
   }
@@ -139,12 +137,15 @@ async function createHealthRecord(studentID)    {
   const data = await res.json();
   console.log("created: ", data);
 
-  if(!res.ok){
+  if (!res.ok) {
     alert("Ghi nhận thất bại");
-  }
-  else{
+  } else {
     closeHealthModal();
-    document.getElementById(`latest-record-${studentID}`).innerHTML=`<small class="text-muted">${data.data.time_ago}</small>`;
+    document.getElementById(
+      `latest-record-${studentID}`
+    ).innerHTML = `<small class="text-muted">${data.data.time_ago}</small>`;
+    // Cập nhật badge trạng thái sau khi tạo health record mới
+    updateStatusBadge(studentID, Number(temperature));
   }
 }
 
@@ -167,23 +168,24 @@ async function openHealthModal(button) {
 
   //load current record
   await fetchHealthRecord(studentID);
-
 }
 
-function resetHealthForm(){
-    weightInput.value="";
-    heightInput.value="";
-    temperatureInput.value="";
-    noteInput.value="";
+function resetHealthForm() {
+  weightInput.value = "";
+  heightInput.value = "";
+  temperatureInput.value = "";
+  noteInput.value = "";
 }
 
-function isToday(dateStr){
-    const recordDate = new Date(dateStr);
-    const today = new Date();
+function isToday(dateStr) {
+  const recordDate = new Date(dateStr);
+  const today = new Date();
 
-    return recordDate.getFullYear() === today.getFullYear() &&
-           recordDate.getMonth() === today.getMonth() &&
-           recordDate.getDate() === today.getDate();
+  return (
+    recordDate.getFullYear() === today.getFullYear() &&
+    recordDate.getMonth() === today.getMonth() &&
+    recordDate.getDate() === today.getDate()
+  );
 }
 
 //Load dữ liệu từ api lên giao diện
@@ -198,42 +200,71 @@ async function fetchHealthRecord(studentID) {
   }
 
   const latest = get_latest_record(data);
-  if(!latest)
-  {
+  if (!latest) {
     console.log("Ko có bản ghi nào");
     return;
   }
 
-  if(!isToday(latest.date_created)){
-    return
+  if (!isToday(latest.date_created)) {
+    return;
   }
 
   document.getElementById("weight").value = latest.weight;
   document.getElementById("height").value = latest.height;
   document.getElementById("temperature").value = latest.temperature;
   document.getElementById("note").value = latest.note ?? "";
-  console.log(latest.date_created)
+  console.log(latest.date_created);
 }
 
-function get_latest_record(records){
-    if (!records || records.length ===0) return null;
-    return records.at(-1)
+function get_latest_record(records) {
+  if (!records || records.length === 0) return null;
+  return records.at(-1);
 }
 
-async function loadAllLatestRecords(){
+function updateStatusBadge(studentID, temperature) {
+  const statusElement = document.getElementById(`status-${studentID}`);
+  if (!statusElement) return;
 
-    const rows = document.querySelectorAll("#health_list tr");
-    rows.forEach(async row =>{
-        const studentID = row.querySelector("button")?.dataset.studentId;
-        if(!studentID) return;
+  // Nếu không có dữ liệu, không hiển thị badge
+  if (temperature === null || temperature === undefined) {
+    statusElement.innerHTML = "";
+    return;
+  }
 
-        const res = await fetch(`/api/health/${studentID}`);
-        const data = await res.json();
+  // Chỉ hiển thị badge khi có dữ liệu
+  if (temperature > 37.5) {
+    statusElement.innerHTML = `
+      <span class="badge bg-danger-subtle text-danger">
+        <i class="fas fa-exclamation-triangle me-1"></i>Sốt
+      </span>
+    `;
+  } else {
+    statusElement.innerHTML = `
+      <span class="badge bg-success-subtle text-success">
+        <i class="fas fa-check-circle me-1"></i>Bình thường
+      </span>
+    `;
+  }
+}
 
-        const latest = get_latest_record(data);
-        if(!latest) return;
+async function loadAllLatestRecords() {
+  const rows = document.querySelectorAll("#health_list tr");
+  rows.forEach(async (row) => {
+    const studentID = row.querySelector("button")?.dataset.studentId;
+    if (!studentID) return;
 
-        document.getElementById(`latest-record-${studentID}`).innerHTML =`<small class="text-muted">${latest.time_ago}</small>`;
+    const res = await fetch(`/api/health/${studentID}`);
+    const data = await res.json();
 
-    });
+    const latest = get_latest_record(data);
+    if (!latest) {
+      updateStatusBadge(studentID, null);
+      return;
+    }
+
+    document.getElementById(
+      `latest-record-${studentID}`
+    ).innerHTML = `<small class="text-muted">${latest.time_ago}</small>`;
+    updateStatusBadge(studentID, latest.temperature);
+  });
 }
