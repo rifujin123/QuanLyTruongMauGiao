@@ -203,8 +203,17 @@ async function saveStudent() {
 
     const data = await res.json();
     if (!res.ok) {
-      if (errorEl) errorEl.textContent = data.message || "Cập nhật thất bại";
-      else alert("Lỗi cập nhật: " + (data.message || "Cập nhật thất bại"));
+      const errorMessage = data.message || "Cập nhật thất bại";
+      if (errorEl) {
+        errorEl.textContent = errorMessage;
+      }
+
+      // Hiển thị alert
+      if (errorMessage === "Lớp đã đầy") {
+        alert("Lớp đã đầy");
+      } else {
+        alert("Lỗi cập nhật: " + errorMessage);
+      }
       return;
     }
 
@@ -414,9 +423,17 @@ async function createStudent() {
 
     const data = await res.json();
     if (!res.ok) {
-      if (errorEl)
-        errorEl.textContent = data.message || "Tạo học sinh thất bại";
-      else alert("Lỗi: " + (data.message || "Tạo học sinh thất bại"));
+      const errorMessage = data.message || "Tạo học sinh thất bại";
+      if (errorEl) {
+        errorEl.textContent = errorMessage;
+      }
+
+      // Hiển thị alert
+      if (errorMessage === "Lớp đã đầy") {
+        alert("Lớp đã đầy");
+      } else {
+        alert("Lỗi: " + errorMessage);
+      }
       return;
     }
     alert("Thêm học sinh thành công!!");

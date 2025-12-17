@@ -67,3 +67,22 @@ def classroom_student_count():
                 classroom_student_count[student.class_id] = 1
     return classroom_student_count
 
+def is_classroom_full(classroom_id: int, exclude_student_id: int = None) -> bool:
+
+    if not classroom_id:
+        return False
+    
+    classroom = Classroom.query.get(classroom_id)
+    if not classroom:
+        return False
+    
+    current_count = get_student_count_by_classroom(classroom_id)
+    
+
+    if exclude_student_id:
+        existing_student = Student.query.get(exclude_student_id)
+        if existing_student and existing_student.class_id == classroom_id:
+            current_count -= 1
+    
+    return current_count >= classroom.max_slots
+

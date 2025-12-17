@@ -182,7 +182,7 @@ def create_app():
     )
 
     app.config.from_mapping(
-        SQLALCHEMY_DATABASE_URI="mysql+pymysql://root:hhthah05%HT@localhost/educa?charset=utf8mb4",
+        SQLALCHEMY_DATABASE_URI="mysql+pymysql://root:password@localhost/educa?charset=utf8mb4",
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
         SECRET_KEY="khoideptrai",
     )

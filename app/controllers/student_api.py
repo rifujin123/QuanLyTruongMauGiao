@@ -7,7 +7,7 @@ from app.utils import _get_payload, _string_to_date, get_filter_params
 from app import db
 from app.controllers.page_routes import roles_required
 from app.models.Models import Student, HealthRecord
-from app.services.student_service import search_students
+from app.services.student_service import search_students, is_classroom_full
 
 student_api = Blueprint('student_api', __name__)
 
@@ -103,6 +103,12 @@ def create_student():
     if dob_value is None:
         return jsonify({"message": "dob is invalid"}), 400
 
+    # Kiểm tra lớp đầy nếu có class_id
+    class_id = payload.get('class_id')
+    if class_id:
+        if is_classroom_full(classroom_id=class_id):
+            return jsonify({"message": "Lớp đã đầy"}), 400
+
     today = date.today()
     age = today.year - dob_value.year - ((today.month, today.day) < (dob_value.month, dob_value.day))
 
@@ -112,7 +118,7 @@ def create_student():
         dob=dob_value,
         gender=payload['gender'],
         address=payload['address'],
-        class_id=payload.get('class_id'),
+        class_id=class_id,
         parent_id=payload.get('parent_id')
     )
 
@@ -153,7 +159,13 @@ def update_student(student_id):
     student.name = payload['name']
     student.dob = dob_value
     student.gender = payload['gender']
-    student.class_id = payload['class_id']
+    
+    # Kiểm tra lớp đầy nếu có thay đổi class_id
+    class_id = payload['class_id']
+    if class_id:
+        if is_classroom_full(classroom_id=class_id, exclude_student_id=student_id):
+            return jsonify({"message": "Lớp đã đầy"}), 400
+    student.class_id = class_id
     student.parent_id = payload['parent_id']
 
     db.session.commit()
@@ -191,8 +203,15 @@ def update_partial_student(student_id):
 
     if "gender" in payload:
         student.gender = payload['gender']
+    
     if "class_id" in payload:
-        student.class_id = payload['class_id']
+        class_id = payload['class_id']
+        # Kiểm tra lớp đầy (loại trừ học sinh hiện tại nếu đang ở cùng lớp)
+        if class_id:
+            if is_classroom_full(classroom_id=class_id, exclude_student_id=student_id):
+                return jsonify({"message": "Lớp đã đầy"}), 400
+        student.class_id = class_id
+    
     if "parent_id" in payload:
         student.parent_id = payload['parent_id']
 
