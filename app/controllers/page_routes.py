@@ -87,28 +87,32 @@ def fee():
 def report():
     return render_template('pages/report.html', Title='Doanh thu')
 
-@page_routes.route('/studentprofile')
-@roles_required('Parent')
-def studentprofile():
-    return render_template('pages/studentProfile.html', Title = "Quản lý hồ sơ")
-
 @page_routes.route('/kidtracking')
 @roles_required('Parent')
 def kid():
     parent_id = current_user.id
     student = Student.query.filter_by(parent_id=parent_id).first()
-    count = count_student_record(student.id)
-    return render_template('pages/kid.html',Title = "Thông tin trẻ",parent_id=parent_id,student_id=student.id if student else None,count=count)
+
+    # Nếu phụ huynh chưa có trẻ, tránh lỗi khi đếm record
+    if student:
+        count = count_student_record(student.id)
+        student_id = student.id
+    else:
+        count = 0
+        student_id = None
+
+    return render_template(
+        'pages/kid.html',
+        Title="Thông tin trẻ",
+        parent_id=parent_id,
+        student_id=student_id,
+        count=count
+    )
 
 @page_routes.route('/feetracking')
 @roles_required('Parent')
 def feetracking():
     return render_template('pages/feeTracking.html', Title = "Theo dõi học phí")
-
-@page_routes.route('/parent/notification')
-@roles_required('Parent')
-def parentnotification():
-    return render_template('pages/parentNotification.html', Title = "Thông báo")
 
 @page_routes.route('/signup', methods=['GET'])
 def signup():

@@ -29,7 +29,6 @@ app = create_app()
 
 # Load seed data from JSON
 def load_seed_data():
-    """Load seed data from JSON file."""
     seed_file = project_root / 'seed_data.json'
     with open(seed_file, 'r', encoding='utf-8') as f:
         return json.load(f)
@@ -80,7 +79,6 @@ def create_users():
         print(f"Users created successfully! ({len(user_entities)} users)")
 
 def create_students():
-    """Tạo một số học sinh demo, gán vào phụ huynh và lớp học."""
     with app.app_context():
         seed_data = load_seed_data()
         students_data = seed_data['students']
@@ -133,7 +131,6 @@ def create_students():
         print(f"Students created successfully! ({len(students)} students)")
 
 def create_classrooms():
-    """Tạo một số lớp học demo, gán giáo viên chủ nhiệm nếu có."""
     with app.app_context():
         seed_data = load_seed_data()
         classrooms_data = seed_data['classrooms']
@@ -214,7 +211,6 @@ def create_healthRecords():
         print(f"Health records created successfully! ({len(records)} records)")
 
 def create_invoices():
-    """Tạo một số hóa đơn học phí demo cho phụ huynh."""
     with app.app_context():
         seed_data = load_seed_data()
         invoices_data = seed_data['invoices']
@@ -249,7 +245,6 @@ def create_invoices():
         print(f"Invoices created successfully! ({len(invoices)} invoices)")
 
 def create_tuitionfees():
-    """Tạo dữ liệu học phí chi tiết cho từng học sinh, gắn với Invoice."""
     with app.app_context():
         seed_data = load_seed_data()
         fees_data = seed_data['tuition_fees']

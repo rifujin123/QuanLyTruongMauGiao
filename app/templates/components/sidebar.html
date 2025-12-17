@@ -18,12 +18,12 @@
     {% endif %} {% if "Teacher" in current_user.roles| map(attribute="name") %}
     <li class="nav-item">
       <a href="{{ url_for('pages.student') }}" class="nav-link">
-        <i class="fa-regular fa-face-smile me-2"></i>Học sinh
+        <i class="fa-regular fa-face-smile me-2"></i>Quản lý học sinh
       </a>
     </li>
     <li class="nav-item">
       <a href="{{ url_for('pages.health') }}" class="nav-link">
-        <i class="fa-solid fa-weight-scale me-2"></i>Sức khỏe
+        <i class="fa-solid fa-weight-scale me-2"></i>Ghi nhận sức khỏe
       </a>
     </li>
     <li class="nav-item">
@@ -45,11 +45,6 @@
     </li>
     {% endif %} {% if "Parent" in current_user.roles| map(attribute="name") %}
     <li class="nav-item">
-      <a href="{{ url_for('pages.studentprofile') }}" class="nav-link">
-        <i class="fa-solid fa-folder-open me-2"></i>Quản lí hồ sơ
-      </a>
-    </li>
-    <li class="nav-item">
       <a href="{{ url_for('pages.kid') }}" class="nav-link">
         <i class="fa-solid fa-children me-2"></i>Thông tin trẻ
       </a>
@@ -57,11 +52,6 @@
     <li class="nav-item">
       <a href="{{ url_for('pages.feetracking') }}" class="nav-link">
         <i class="fa-solid fa-piggy-bank me-2"></i>Theo dõi học phí
-      </a>
-    </li>
-    <li class="nav-item">
-      <a href="{{ url_for('pages.parentnotification') }}" class="nav-link">
-        <i class="fa-solid fa-bell me-2"></i>Thông báo
       </a>
     </li>
     {% endif %} {% if "Admin" in current_user.roles| map(attribute="name") %}

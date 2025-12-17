@@ -1,7 +1,3 @@
-/* ============================
-   Loginform.css – Structure Notes
-   - Các nhóm selector được chú thích để dễ chỉnh sửa về sau
-   ============================ */
 /* Login */
 * {
   font-family: "Poppins", sans-serif;
@@ -12,9 +8,7 @@
   list-style: none;
 }
 
-/* ============================ NỀN TRANG ============================ */
-/* Gradient tím nhạt. Muốn đậm/nhạt hơn: chỉnh các mã màu ở dòng background */
-/*body styles*/
+/*NỀN TRANG*/
 body {
   display: flex;
   justify-content: center;
@@ -23,9 +17,7 @@ body {
   background: linear-gradient(135deg, #ffffff 0%, #f3ecff 35%, #eadbff 100%);
 }
 
-/* ============================ CONTAINER TỔNG ============================ */
-/* Kích thước khung trắng.bo góc.bóng đổ */
-/*container styles*/
+/*CONTAINER TỔNG*/
 .container {
   position: relative;
   width: 850px;
@@ -37,24 +29,21 @@ body {
   overflow: hidden;
 }
 
-/* Tiêu đề trong form (login/register) */
 .container h1 {
   font-size: 36px;
   margin: -10px 0;
 }
 
-/* Đoạn văn mô tả/hướng dẫn trong form */
 .container p {
   font-size: 14.5px;
   margin: 12px 0;
 }
 
-/* ============================ KHỐI FORM ============================ */
+/*KHỐI FORM*/
 .form {
   width: 100%;
 }
 
-/* Hộp form login/register. Bị đẩy trái khi .container.active */
 .form-box {
   position: absolute;
   right: 0;
@@ -65,7 +54,7 @@ body {
   align-items: center;
   text-align: center;
   color: #333;
-  padding: 32px; /* giảm padding để thoáng chỗ cho form */
+  padding: 32px;
   z-index: 1;
   transition: 0.6s ease-in-out 1.2s, visibility 0s 1s;
 }
@@ -73,7 +62,6 @@ body {
 .container.active .form-box {
   right: 50%;
 }
-/* Register ẩn mặc định, hiện khi .container.active */
 .form-box.register {
   visibility: hidden;
 }
@@ -81,7 +69,6 @@ body {
   visibility: visible;
 }
 
-/* Nén khoảng cách cho Register để tránh tràn lên trên */
 .form-box.register {
   padding: 32px;
 }
@@ -98,13 +85,11 @@ body {
   margin-top: 8px;
 }
 
-/* ============================ INPUT ============================ */
-/* Khoảng cách mỗi ô nhập. Giảm để sát hơn.tăng để thoáng hơn */
+/* INPUT*/
 .input-box {
   position: relative;
-  margin: 24px 0; /* giảm khoảng cách dọc để không tràn */
+  margin: 24px 0;
 }
-/* Cảm giác kích thước ô nhập = padding + font-size */
 .input-box input {
   width: 100%;
   padding: 16px 54px 16px 22px;
@@ -130,7 +115,6 @@ body {
 }
 
 /* ============================ VĂN BẢN HƯỚNG DẪN ============================ */
-/* Màu cho dòng hướng dẫn đăng nhập/đăng ký với MXH */
 .form-box p {
   color: #8850ee;
 }
@@ -146,7 +130,6 @@ body {
 }
 
 /* ============================ NÚT TRONG FORM (ĐĂNG NHẬP) ============================ */
-/* Màu nền nút login chỉnh ở hover bên dưới. Kích thước/độ nổi đặt tại đây */
 .btn {
   width: 100%;
   height: 50px;
@@ -160,7 +143,6 @@ body {
   font-weight: 600;
 }
 
-/* Hover/focus cho nút Đăng nhập trong form */
 .form-box .btn:hover,
 .form-box .btn:focus {
   background: linear-gradient(90deg, #a97ff7 0%, #8850ee 100%);
@@ -198,7 +180,6 @@ body {
   height: 100%;
 }
 
-/* Thanh gradient chuyển động khi bật/tắt .container.active */
 .toggle-box::before {
   content: "";
   position: absolute;
@@ -236,7 +217,6 @@ body {
   transition: 0.6s ease-in-out;
 }
 
-/* Panel trái: giảm gap để nút sát dòng chữ hơn */
 .toggle-panel.toggle-left {
   gap: 6px;
 }
@@ -251,7 +231,6 @@ body {
   transition-delay: 0.6s;
 }
 
-/* Panel phải: trượt vào khi .container.active */
 .toggle-panel.toggle-right {
   right: -50%;
   transition-delay: 0.6s;
@@ -267,7 +246,6 @@ body {
 }
 
 /* ============================ NÚT Ở PANEL: CẤU HÌNH CHUNG ============================ */
-/* KHÔNG set màu ở đây để tách riêng Register/Login */
 .toggle-panel .btn {
   width: 160px;
   height: 46px;
@@ -277,7 +255,6 @@ body {
   transition: background 0.16s, color 0.16s, border 0.18s;
 }
 
-/* Nút Register ở panel - màu riêng (gradient to left) */
 .toggle-panel .register-btn {
   background: linear-gradient(to left, #ffffff 70%, #b992f4);
   border: 2px solid #a087d8;
@@ -290,7 +267,6 @@ body {
   border-color: #a97ff7;
 }
 
-/* Nút Login ở panel - màu riêng (mặc định giống Register, có thể đổi độc lập) */
 .toggle-panel .login-btn {
   background: linear-gradient(to right, #ffffff 70%, #b992f4);
   border: 2px solid #a087d8;

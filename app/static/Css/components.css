@@ -1,21 +1,21 @@
 /*SIDEBAR*/
 .sidebar {
-  position: fixed; /* giữ sidebar cố định trên màn hình */
+  position: fixed;
   top: 0;
   left: 0;
   width: 220px;
   height: 100vh;
-  flex: 0 0 220px; /* cố định chiều ngang, không co giãn theo flex */
+  flex: 0 0 220px;
   min-width: 220px;
-  overflow-y: auto; /* menu cuộn nếu quá dài */
+  overflow-y: auto;
   z-index: 99;
 }
 
 /* Sidebar tím nhẹ */
 .sidebar-purple {
-  --sidebar-bg: #f5f0ff; /* tím rất nhạt */
-  --sidebar-border: #e6dcff; /* viền nhạt */
-  --sidebar-text: #5b4a8f; /* tím đậm vừa phải */
+  --sidebar-bg: #f5f0ff;
+  --sidebar-border: #e6dcff;
+  --sidebar-text: #5b4a8f;
   --sidebar-hover: rgba(111, 66, 193, 0.08);
 
   background: var(--sidebar-bg);
@@ -38,7 +38,7 @@
   font-weight: 800;
   letter-spacing: 0.4px;
   padding-bottom: 6px;
-  border-bottom: 2px solid #e6dcff; /* nhấn nhẹ, tách khỏi menu */
+  border-bottom: 2px solid #e6dcff;
 }
 
 .sidebar .brand-link:hover .brand-title {
@@ -84,8 +84,8 @@
 .sidebar .logout-container {
   position: fixed;
   left: 0;
-  bottom: 1rem; /* luôn hiển thị ở đáy màn hình */
-  width: 220px; /* khớp chiều rộng sidebar */
+  bottom: 1rem;
+  width: 220px;
   padding: 0 16px;
   z-index: 1000;
 }
@@ -120,8 +120,8 @@
 .app-footer {
   border-top: 1px solid #ece7ff;
   background: #faf7ff;
-  width: 100%; /* luôn chiếm full chiều ngang main-content */
-  flex: 0 0 auto; /* không bị co giãn khi ở trong layout flex */
+  width: 100%;
+  flex: 0 0 auto;
 }
 
 .app-footer .nav-link {

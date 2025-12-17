@@ -17,6 +17,7 @@ class SecureModelView(ModelView):
     column_exclude_list = ("password_hash", "account_status")
     # Ẩn trong form Create/Edit
     form_excluded_columns = ("password_hash", "account_status")
+
     def is_accessible(self):
         if not current_user.is_authenticated:
             return False
@@ -26,6 +27,7 @@ class SecureModelView(ModelView):
     def inaccessible_callback(self, name, **kwargs):
         # /login của bạn chỉ POST => redirect về trang có form login/signup
         return redirect(url_for("pages.signup", next=request.url))
+
 
 class UserAdminView(SecureModelView):
     column_list = ("name", "phone", "email", "roles", "last_login", "created_at")
@@ -72,49 +74,108 @@ class QuyDinhView(BaseView):
         from app.extensions import db
         from app.models.Models import Classroom, Setting
 
+        # fees | capacity
+        mode = (request.args.get("mode") or "fees").strip()
+        if mode not in ("fees", "capacity"):
+            mode = "fees"
+
         classrooms = db.session.query(Classroom).order_by(Classroom.name.asc()).all()
 
-        # ✅ luôn lấy 1 record settings (thường chỉ có 1 dòng)
+        # luôn lấy 1 record settings (thường chỉ có 1 dòng)
         settings = db.session.query(Setting).first()
         if not settings:
-            settings = Setting(tuition_base=0, meal_fee_per_day=0, max_students_per_class=0,
-                               updated_by=getattr(current_user, "id", None))
+            settings = Setting(
+                tuition_base=0,
+                meal_fee_per_day=0,
+                max_students_per_class=0,
+                updated_by=getattr(current_user, "id", None),
+            )
             db.session.add(settings)
             db.session.commit()
 
+        selected_class_id = request.args.get("class_id", type=int)
+
         if request.method == "POST":
-            hoc_phi = (request.form.get("hoc_phi_co_ban") or "").strip()
-            tien_an = (request.form.get("tien_an_ngay") or "").strip()
-            class_id = request.form.get("class_id")
-            max_slots = (request.form.get("max_slots") or "").strip()
+            action = (request.form.get("action") or mode).strip()
 
-            # ✅ lưu settings
-            if hoc_phi:
-                settings.tuition_base = int(hoc_phi)
-            if tien_an:
-                settings.meal_fee_per_day = int(tien_an)
-            settings.updated_by = getattr(current_user, "id", None)
+            #  HỌC PHÍ + TIỀN ĂN
+            if action == "fees":
+                hoc_phi = (request.form.get("hoc_phi_co_ban") or "").strip()
+                tien_an = (request.form.get("tien_an_ngay") or "").strip()
 
-            # ✅ nếu muốn lưu thêm max_students_per_class chung toàn trường (optional)
-            if max_slots:
-                settings.max_students_per_class = int(max_slots)
+                if not hoc_phi or not tien_an:
+                    flash("Vui lòng nhập đầy đủ học phí cơ bản và tiền ăn/ngày.", "error")
+                    return self.render(
+                        "admin/quydinh.html",
+                        classrooms=classrooms,
+                        settings=settings,
+                        mode="fees",
+                        selected_class_id=selected_class_id,
+                    )
 
-            # ✅ update sĩ số theo lớp (classrooms.max_slots)
-            if class_id and max_slots:
-                cls = db.session.get(Classroom, int(class_id))
-                if cls:
-                    cls.max_slots = int(max_slots)
-                else:
+                try:
+                    settings.tuition_base = int(hoc_phi)
+                    settings.meal_fee_per_day = int(tien_an)
+                except ValueError:
+                    flash("Học phí và tiền ăn phải là số.", "error")
+                    return self.render(
+                        "admin/quydinh.html",
+                        classrooms=classrooms,
+                        settings=settings,
+                        mode="fees",
+                        selected_class_id=selected_class_id,
+                    )
+
+                settings.updated_by = getattr(current_user, "id", None)
+                db.session.commit()
+                flash("Cập nhật học phí + tiền ăn thành công.", "success")
+
+                # redirect về đúng tab
+                return redirect(url_for(f"{self.endpoint}.index", mode="fees"))
+
+            # 2) SĨ SỐ TỐI ĐA THEO LỚP
+            if action == "capacity":
+                class_id = request.form.get("class_id", type=int)
+                max_slots = (request.form.get("max_slots") or "").strip()
+
+                if not class_id:
+                    flash("Vui lòng chọn lớp.", "error")
+                    return redirect(url_for(f"{self.endpoint}.index", mode="capacity"))
+
+                if not max_slots:
+                    flash("Vui lòng nhập sĩ số tối đa.", "error")
+                    return redirect(url_for(f"{self.endpoint}.index", mode="capacity", class_id=class_id))
+
+                try:
+                    max_slots_int = int(max_slots)
+                    if max_slots_int <= 0:
+                        raise ValueError
+                except ValueError:
+                    flash("Sĩ số tối đa phải là số nguyên > 0.", "error")
+                    return redirect(url_for(f"{self.endpoint}.index", mode="capacity", class_id=class_id))
+
+                cls = db.session.get(Classroom, class_id)
+                if not cls:
                     flash("Không tìm thấy lớp.", "error")
+                    return redirect(url_for(f"{self.endpoint}.index", mode="capacity"))
 
-            db.session.commit()
-            flash("Thay đổi quy định thành công.", "success")
+                cls.max_slots = max_slots_int
+                db.session.commit()
+                flash(f"Đã cập nhật sĩ số tối đa cho lớp {cls.name}.", "success")
 
-        # ✅ đổ dữ liệu ra form (để input hiện giá trị hiện tại)
+                return redirect(url_for(f"{self.endpoint}.index", mode="capacity", class_id=class_id))
+
+            # action lạ
+            flash("Thao tác không hợp lệ.", "error")
+            return redirect(url_for(f"{self.endpoint}.index", mode="fees"))
+
+        # GET: render theo mode
         return self.render(
             "admin/quydinh.html",
             classrooms=classrooms,
-            settings=settings
+            settings=settings,
+            mode=mode,
+            selected_class_id=selected_class_id,
         )
 
 

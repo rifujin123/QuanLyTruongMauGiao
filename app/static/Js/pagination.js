@@ -1,10 +1,4 @@
-/**
- * Tạo paginator dùng chung cho nhiều bảng/danh sách.
- * options:
- *  - paginationId: id của <ul class="pagination">
- *  - prevId, nextId: id của nút prev/next (li hoặc a)
- *  - onPageChange(page): callback khi đổi trang (1-based)
- */
+// Hàm khởi tạo paginator dùng chung
 function createPaginator({ paginationId, prevId, nextId, onPageChange }) {
   const pagination = document.getElementById(paginationId);
   if (!pagination) return null;
@@ -16,8 +10,8 @@ function createPaginator({ paginationId, prevId, nextId, onPageChange }) {
   let currentPage = 1;
   let totalPages = 1;
 
+  // Hàm vẽ lại các nút phân trang
   function renderPagination() {
-    // Xoá các nút số cũ (giữ prev/next)
     const pageItems = pagination.querySelectorAll(
       `.page-item:not(#${prevId}):not(#${nextId})`
     );
@@ -52,6 +46,7 @@ function createPaginator({ paginationId, prevId, nextId, onPageChange }) {
     nextBtn.classList.toggle("disabled", currentPage === totalPages);
   }
 
+  // Hàm chuyển tới 1 trang cụ thể
   function goTo(page) {
     const target = Math.min(Math.max(1, page), totalPages);
     currentPage = target;
@@ -59,6 +54,7 @@ function createPaginator({ paginationId, prevId, nextId, onPageChange }) {
     renderPagination();
   }
 
+  // Hàm xử lý click trên thanh phân trang
   function handleClick(e) {
     const link = e.target.closest(".page-link");
     if (!link || link.classList.contains("disabled")) return;
@@ -79,12 +75,14 @@ function createPaginator({ paginationId, prevId, nextId, onPageChange }) {
   }
 
   return {
+    // Hàm cập nhật tổng số trang
     setTotalPages(n) {
       totalPages = Math.max(1, n || 1);
       if (currentPage > totalPages) currentPage = totalPages;
       renderPagination();
     },
     goTo,
+    // Hàm trả về trang hiện tại
     getCurrentPage() {
       return currentPage;
     },

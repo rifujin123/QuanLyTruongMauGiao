@@ -6,15 +6,14 @@ body {
 
 .main-content {
   flex: 1;
-  margin-left: 220px; /* chừa chỗ cho sidebar fixed */
+  margin-left: 220px;
   width: calc(100% - 220px);
   background-color: #f8f9fa;
-  overflow-x: auto; /* nội dung rộng (như bảng admin) sẽ có thanh scroll ngang, không bị footer che/mất */
+  overflow-x: auto;
 }
 
-/* Màu chủ đạo tím Bootstrap */
 :root {
-  --bs-primary: #6f42c1; /* tím */
+  --bs-primary: #6f42c1;
   --bs-primary-rgb: 111, 66, 193;
 }
 
@@ -22,7 +21,6 @@ body {
   color: #6f42c1;
 }
 
-/* Thương hiệu - dùng lại nhiều nơi */
 .text-brand {
   color: #6f42c1;
 }
@@ -43,7 +41,6 @@ body {
   color: #ffffff;
 }
 
-/* Nút tròn nhỏ kiểu FAB */
 .btn-fab {
   width: 38px;
   height: 38px;
@@ -52,7 +49,6 @@ body {
   justify-content: center;
 }
 
-/* Làm nổi bật nút đăng nhập */
 .btn-outline-primary {
   background: #ffffff;
   color: #6f42c1;
@@ -62,7 +58,7 @@ body {
   background: rgba(111, 66, 193, 0.06);
 }
 
-/* Pagination - đổi màu active thành tím */
+/* pagination */
 .pagination .page-item.active .page-link {
   background-color: #6f42c1;
   border-color: #6f42c1;

@@ -13,20 +13,6 @@
         <i class="fa-solid fa-user"></i>
         <span>{{ current_user.name }}</span>
       </button>
-      <ul
-        class="dropdown-menu dropdown-menu-end"
-        aria-labelledby="navbarProfileDropdown"
-      >
-        <li>
-          <a
-            class="dropdown-item d-flex align-items-center gap-2"
-            href="{{ url_for('pages.studentprofile') }}"
-          >
-            <i class="fa-solid fa-pen"></i>
-            Cập nhật hồ sơ
-          </a>
-        </li>
-      </ul>
     </div>
   </div>
   {% else %}

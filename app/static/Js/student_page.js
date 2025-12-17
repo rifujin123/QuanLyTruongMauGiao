@@ -110,32 +110,63 @@ function RenderStudentList() {
   });
 }
 
-// Gom danh sách phụ huynh từ dữ liệu hiện có (unique theo id) để fill datalist
+// Tải danh sách toàn bộ phụ huynh từ API users (roles chứa 'Parent')
 function buildParentOptions() {
-  const seen = new Set();
-  parentOptions = [];
-  data.forEach((s) => {
-    if (s.parent?.id && !seen.has(s.parent.id)) {
-      seen.add(s.parent.id);
-      parentOptions.push({
-        id: s.parent.id,
-        name: s.parent.name || "",
-        phone: s.parent.phone || "",
-      });
-    }
-  });
+  fetch("/api/users/")
+    .then((res) => res.json())
+    .then((users) => {
+      const parents = Array.isArray(users)
+        ? users.filter((u) =>
+            Array.isArray(u.roles)
+              ? u.roles.includes("Parent")
+              : String(u.roles || "").includes("Parent")
+          )
+        : [];
 
-  const datalist = document.getElementById("parentOptions");
-  if (!datalist) return;
-  datalist.innerHTML = "";
+      parentOptions = parents.map((p) => ({
+        id: p.id,
+        name: p.name || "",
+        phone: p.phone || "",
+      }));
 
-  parentOptions.forEach((p) => {
-    const label = `${p.name || "Không tên"} - ${p.phone || "Không số"}`;
-    const opt = document.createElement("option");
-    opt.value = label;
-    opt.dataset.id = p.id;
-    datalist.appendChild(opt);
-  });
+      // Cập nhật dropdown phụ huynh nếu có
+      populateParentSelect(
+        document.getElementById("editParentSelect"),
+        document.getElementById("editParentSearch")?.value || "",
+        document.getElementById("editStudentParentId")?.value || ""
+      );
+      populateParentSelect(
+        document.getElementById("createParentSelect"),
+        document.getElementById("createParentSearch")?.value || "",
+        document.getElementById("createStudentParentId")?.value || ""
+      );
+    })
+    .catch((err) => {
+      console.error("Failed to load parent options:", err);
+    });
+}
+
+// Render options cho dropdown phụ huynh theo term tìm kiếm và id đang chọn
+function populateParentSelect(selectEl, filterTerm = "", selectedId = "") {
+  if (!selectEl) return;
+  const term = (filterTerm || "").toLowerCase();
+
+  selectEl.innerHTML = '<option value="">-- Không gán phụ huynh --</option>';
+  parentOptions
+    .filter((p) => {
+      if (!term) return true;
+      const label = `${p.name || ""} ${p.phone || ""}`.toLowerCase();
+      return label.includes(term);
+    })
+    .forEach((p) => {
+      const opt = document.createElement("option");
+      opt.value = p.id;
+      opt.textContent = `${p.name || "Không tên"} - ${p.phone || "Không số"}`;
+      if (selectedId && String(p.id) === String(selectedId)) {
+        opt.selected = true;
+      }
+      selectEl.appendChild(opt);
+    });
 }
 
 // Mở modal và đổ dữ liệu học sinh
@@ -151,13 +182,17 @@ function openEditModal(student) {
     student.class_id || student.classroom?.id || "";
 
   const parentId = student.parent?.id || "";
-  const parentLabel = parentOptions.find(
-    (p) => String(p.id) === String(parentId)
-  );
-  document.getElementById("editParentFilter").value = parentLabel
-    ? `${parentLabel.name || "Không tên"} - ${parentLabel.phone || "Không số"}`
-    : "";
+  // cập nhật dropdown + hidden parent id
   document.getElementById("editStudentParentId").value = parentId || "";
+  const editSearchEl = document.getElementById("editParentSearch");
+  const editSelectEl = document.getElementById("editParentSelect");
+  if (editSelectEl) {
+    populateParentSelect(
+      editSelectEl,
+      editSearchEl?.value || "",
+      parentId || ""
+    );
+  }
   document.getElementById("editStudentError").textContent = "";
 
   if (!editModal) {
@@ -296,31 +331,37 @@ function init() {
     saveBtn.addEventListener("click", saveStudent);
   }
 
-  // Lọc & chọn phụ huynh bằng 1 ô nhập + datalist (modal chỉnh sửa)
-  const parentFilter = document.getElementById("editParentFilter");
-  const parentIdHidden = document.getElementById("editStudentParentId");
-  const parentDatalist = document.getElementById("parentOptions");
-  if (parentFilter && parentIdHidden && parentDatalist) {
-    parentFilter.addEventListener("input", () => {
-      const val = parentFilter.value;
-      const opt = Array.from(parentDatalist.options).find(
-        (o) => o.value === val && o.dataset.id
+  // Tìm kiếm + dropdown phụ huynh (modal chỉnh sửa)
+  const editParentSearch = document.getElementById("editParentSearch");
+  const editParentSelect = document.getElementById("editParentSelect");
+  const editParentIdHidden = document.getElementById("editStudentParentId");
+  if (editParentSearch && editParentSelect && editParentIdHidden) {
+    editParentSearch.addEventListener("input", () => {
+      populateParentSelect(
+        editParentSelect,
+        editParentSearch.value,
+        editParentIdHidden.value
       );
-      parentIdHidden.value = opt ? opt.dataset.id : "";
+    });
+    editParentSelect.addEventListener("change", () => {
+      editParentIdHidden.value = editParentSelect.value || "";
     });
   }
 
-  // Lọc & chọn phụ huynh bằng 1 ô nhập + datalist (modal tạo mới)
-  const createParentFilter = document.getElementById("createParentFilter");
+  // Tìm kiếm + dropdown phụ huynh (modal tạo mới)
+  const createParentSearch = document.getElementById("createParentSearch");
+  const createParentSelect = document.getElementById("createParentSelect");
   const createParentIdHidden = document.getElementById("createStudentParentId");
-  const createParentDatalist = document.getElementById("createParentOptions");
-  if (createParentFilter && createParentIdHidden && createParentDatalist) {
-    createParentFilter.addEventListener("input", () => {
-      const val = createParentFilter.value;
-      const opt = Array.from(createParentDatalist.options).find(
-        (o) => o.value === val && o.dataset.id
+  if (createParentSearch && createParentSelect && createParentIdHidden) {
+    createParentSearch.addEventListener("input", () => {
+      populateParentSelect(
+        createParentSelect,
+        createParentSearch.value,
+        createParentIdHidden.value
       );
-      createParentIdHidden.value = opt ? opt.dataset.id : "";
+    });
+    createParentSelect.addEventListener("change", () => {
+      createParentIdHidden.value = createParentSelect.value || "";
     });
   }
 
@@ -335,7 +376,12 @@ function init() {
   if (createModalEl) {
     createModalEl.addEventListener("show.bs.modal", () => {
       resetCreateForm();
-      buildCreateParentOptions();
+      // populate dropdown phụ huynh khi mở modal
+      populateParentSelect(
+        document.getElementById("createParentSelect"),
+        document.getElementById("createParentSearch")?.value || "",
+        document.getElementById("createStudentParentId")?.value || ""
+      );
     });
   }
 }
@@ -347,39 +393,9 @@ function resetCreateForm() {
   document.getElementById("createStudentGender").value = "";
   document.getElementById("createStudentAddress").value = "";
   document.getElementById("createStudentClassSelect").value = "";
-  document.getElementById("createParentFilter").value = "";
+  document.getElementById("createParentSearch").value = "";
   document.getElementById("createStudentParentId").value = "";
   document.getElementById("createStudentError").textContent = "";
-}
-
-// Gom danh sách phụ huynh cho modal tạo mới
-function buildCreateParentOptions() {
-  const seen = new Set();
-  const parentOptions = [];
-
-  data.forEach((s) => {
-    if (s.parent?.id && !seen.has(s.parent.id)) {
-      seen.add(s.parent.id);
-      parentOptions.push({
-        id: s.parent.id,
-        name: s.parent.name || "",
-        phone: s.parent.phone || "",
-      });
-    }
-  });
-
-  const datalist = document.getElementById("createParentOptions");
-  if (!datalist) return;
-
-  datalist.innerHTML = "";
-
-  parentOptions.forEach((p) => {
-    const label = `${p.name || "Không tên"} - ${p.phone || "Không số"}`;
-    const opt = document.createElement("option");
-    opt.value = label;
-    opt.dataset.id = p.id;
-    datalist.appendChild(opt);
-  });
 }
 
 // Tạo học sinh mới qua API POST
@@ -496,4 +512,99 @@ if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", init);
 } else {
   init();
+}
+
+function initDropdownFilter({
+  containerSelector,
+  itemSelector = ".dropdown-item",
+  dataAttr = "class",
+  defaultValue = "all",
+  onChange,
+  toggleSelector,
+  activeClass = "active",
+}) {
+  const container = document.querySelector(containerSelector);
+  const toggleBtn = toggleSelector
+    ? document.querySelector(toggleSelector)
+    : null;
+
+  if (!container) return { setValue: () => {}, getValue: () => defaultValue };
+
+  let current = defaultValue;
+
+  container.querySelectorAll(itemSelector).forEach((item) => {
+    item.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      const value = this.dataset[dataAttr];
+      current = value ?? defaultValue;
+
+      // cập nhật nhãn nút toggle nếu có
+      if (toggleBtn) {
+        toggleBtn.textContent = this.textContent.trim();
+      }
+
+      // cập nhật trạng thái active
+      if (activeClass) {
+        container.querySelectorAll(itemSelector).forEach((el) => {
+          el.classList.toggle(activeClass, el === this);
+        });
+      }
+
+      onChange?.(current);
+    });
+  });
+
+  const api = {
+    setValue(val) {
+      current = val ?? defaultValue;
+      onChange?.(current);
+
+      // đồng bộ nhãn toggle theo item khớp
+      if (toggleBtn) {
+        const matched = Array.from(
+          container.querySelectorAll(itemSelector)
+        ).find((el) => el.dataset[dataAttr] === current);
+        if (matched) {
+          toggleBtn.textContent = matched.textContent.trim();
+        }
+      }
+    },
+    getValue() {
+      return current;
+    },
+  };
+
+  // khởi tạo nhãn toggle mặc định
+  api.setValue(defaultValue);
+
+  return api;
+}
+
+// Khởi tạo input tìm kiếm (copy từ filters.js, dùng riêng cho trang này)
+function initSearchInput({ formSelector, inputSelector, onSearch }) {
+  const form = document.querySelector(formSelector);
+  const input = document.querySelector(inputSelector);
+  if (!form || !input) return { setValue: () => {} };
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    onSearch?.(input.value.trim());
+  });
+
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      onSearch?.(input.value.trim());
+    }
+  });
+
+  return {
+    setValue(val) {
+      input.value = val ?? "";
+    },
+    getValue() {
+      return input.value.trim();
+    },
+  };
 }

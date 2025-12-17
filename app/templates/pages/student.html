@@ -193,15 +193,16 @@ block content %}
 
           <div class="vstack gap-2">
             <div>
-              <label for="editParentFilter" class="form-label">Phụ huynh</label>
+              <label for="editParentSearch" class="form-label">Phụ huynh</label>
               <input
                 type="text"
-                class="form-control"
-                id="editParentFilter"
-                placeholder="Nhập tên/số điện thoại để tìm"
-                list="parentOptions"
+                class="form-control form-control-sm mb-2"
+                id="editParentSearch"
+                placeholder="Tìm theo tên / số điện thoại"
               />
-              <datalist id="parentOptions"></datalist>
+              <select class="form-select" id="editParentSelect">
+                <option value="">-- Không gán phụ huynh --</option>
+              </select>
             </div>
             <input type="hidden" id="editStudentParentId" />
           </div>
@@ -307,17 +308,18 @@ block content %}
 
           <div class="vstack gap-2">
             <div>
-              <label for="createParentFilter" class="form-label"
+              <label for="createParentSearch" class="form-label"
                 >Phụ huynh</label
               >
               <input
                 type="text"
-                class="form-control"
-                id="createParentFilter"
-                placeholder="Nhập tên/số điện thoại để tìm"
-                list="createParentOptions"
+                class="form-control form-control-sm mb-2"
+                id="createParentSearch"
+                placeholder="Tìm theo tên / số điện thoại"
               />
-              <datalist id="createParentOptions"></datalist>
+              <select class="form-select" id="createParentSelect">
+                <option value="">-- Không gán phụ huynh --</option>
+              </select>
             </div>
             <input type="hidden" id="createStudentParentId" />
           </div>
@@ -341,6 +343,5 @@ block content %}
 </div>
 
 <script src="{{ url_for('static', filename='Js/pagination.js') }}"></script>
-<script src="{{ url_for('static', filename='Js/filters.js') }}"></script>
 <script src="{{ url_for('static', filename='Js/student_page.js') }}"></script>
 {% endblock %}
