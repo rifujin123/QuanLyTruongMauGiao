@@ -419,7 +419,7 @@ async function createStudent() {
       else alert("Lỗi: " + (data.message || "Tạo học sinh thất bại"));
       return;
     }
-
+    alert("Thêm học sinh thành công!!");
     // Đóng modal và reload danh sách
     const createModalEl = document.getElementById("createStudentModal");
     if (createModalEl) {
@@ -443,11 +443,13 @@ async function createStudent() {
       removeModalBackdrop();
       await fetchStudents();
     }
+
   } catch (err) {
     console.error(err);
     if (errorEl) errorEl.textContent = err.message || "Có lỗi xảy ra";
     else alert("Có lỗi xảy ra");
   }
+
 }
 
 // Xóa học sinh

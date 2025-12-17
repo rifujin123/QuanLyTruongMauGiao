@@ -1,18 +1,13 @@
 import enum
 from typing import List
-from datetime import datetime
+from datetime import datetime, date
+
+from app.extensions import db
+from flask_login import UserMixin
 
 from sqlalchemy import case, and_
 from sqlalchemy.ext.hybrid import hybrid_property
-
-from app import db
-
-from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship, column_property
-
-from app import db
-from datetime import datetime, date
-from flask_login import UserMixin
 
 from app.models.DTO import UserDTO
 
@@ -52,6 +47,13 @@ class Role(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True, nullable=False)
+
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return self.name
+
 
 class Classroom(db.Model):
     __tablename__ = "classrooms"
@@ -160,6 +162,18 @@ class Invoice(db.Model):
     #relationships
     accountant_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
+class Setting(db.Model):
+    __tablename__ = "settings"
+
+    id = db.Column(db.Integer, primary_key=True)
+    tuition_base = db.Column(db.Integer, default=0)
+    meal_fee_per_day = db.Column(db.Integer, default=0)
+    max_students_per_class = db.Column(db.Integer, default=0)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_by = db.Column(db.Integer)
+
 #Mapping model to DTO
 def user_to_dto(user: User) -> UserDTO:
     return UserDTO(
@@ -180,4 +194,15 @@ def dto_to_user(dto:UserDTO) -> User:
         email = dto.email
     )
     return user
+
+
+class Notification(db.Model):
+    __tablename__ = "notifications"
+
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(255), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    target_role = db.Column(db.String(50), nullable=False)  # All/Parent/Teacher/Accountant
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_by = db.Column(db.Integer, db.ForeignKey("users.id"))
 

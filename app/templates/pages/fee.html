@@ -68,28 +68,33 @@ block content %}
     <div class="card-body">
       <div class="d-flex align-items-center justify-content-between mb-3">
         <h5 class="card-title mb-0">Chi tiết thu học phí</h5>
-        <div class="btn-group" role="group">
-          <button
-            class="btn btn-outline-secondary active"
-            id="all-btn"
-            data-status="all"
-          >
-            Tất cả
-          </button>
-          <button
-            class="btn btn-outline-secondary"
-            id="paid-btn"
-            data-status="Paid"
-          >
-            Đã thu
-          </button>
-          <button
-            class="btn btn-outline-secondary"
-            id="unpaid-btn"
-            data-status="Unpaid"
-          >
-            Chưa thu
-          </button>
+        <div class="d-flex align-items-center gap-2">
+          <select class="form-select" id="class-filter" style="width: 180px">
+            <option value="all">Tất cả lớp</option>
+          </select>
+          <div class="btn-group" role="group">
+            <button
+              class="btn btn-outline-secondary active"
+              id="all-btn"
+              data-status="all"
+            >
+              Tất cả
+            </button>
+            <button
+              class="btn btn-outline-secondary"
+              id="paid-btn"
+              data-status="Paid"
+            >
+              Đã thu
+            </button>
+            <button
+              class="btn btn-outline-secondary"
+              id="unpaid-btn"
+              data-status="Unpaid"
+            >
+              Chưa thu
+            </button>
+          </div>
         </div>
       </div>
       <div class="table-responsive">
@@ -97,6 +102,7 @@ block content %}
           <thead class="table-light">
             <tr>
               <th>Học sinh</th>
+              <th>Lớp</th>
               <th class="text-end">Học phí cơ bản</th>
               <th class="text-end">Tiền ăn</th>
               <th class="text-end">Phụ thu</th>

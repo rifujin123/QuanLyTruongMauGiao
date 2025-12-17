@@ -1,0 +1,42 @@
+{% extends 'admin/master.html' %}
+{% block body %}
+<div class="container mt-3">
+  <h3>Thay đổi quy định</h3>
+  <p class="text-muted">Cấu hình học phí, tiền ăn/ngày, và sĩ số tối đa theo từng lớp.</p>
+
+  <div class="card p-3">
+    <form method="post">
+      <div class="mb-3">
+        <label class="form-label">Học phí cơ bản</label>
+        <input name="hoc_phi_co_ban" class="form-control" placeholder="VD: 800000">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Tiền ăn / ngày</label>
+        <input name="tien_an_ngay" class="form-control" placeholder="VD: 30000">
+      </div>
+
+      <hr class="my-4">
+
+      <!-- ✅ Chọn lớp -->
+      <div class="mb-3">
+        <label class="form-label">Chọn lớp</label>
+        <select name="class_id" class="form-select" required>
+          <option value="" selected disabled>Chọn lớp </option>
+          {% for c in classrooms %}
+          <option value="{{ c.id }}">{{ c.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- ✅ Sĩ số tối đa theo lớp -->
+      <div class="mb-3">
+        <label class="form-label">Sĩ số tối đa / lớp</label>
+        <input name="max_slots" type="number" min="1" class="form-control" placeholder="VD: 35" required>
+      </div>
+
+      <button class="btn btn-primary">Lưu quy định</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

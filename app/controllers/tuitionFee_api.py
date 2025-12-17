@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from app import db
-from app.models.Models import TuitionFee, Student
+from app.models.Models import TuitionFee, Student, Classroom
 from app.services.tuition_service import total_revenue, monthly_revenue, monthly_collected_amounts, \
     monthly_uncollected_amounts
 
@@ -38,6 +38,10 @@ def get_tuition():
             "student": {
                 "id": tuition.student.id,
                 "name":tuition.student.name
+            },
+            "classroom": {
+                "id": tuition.student.classroom.id if tuition.student.classroom else None,
+                "name": tuition.student.classroom.name if tuition.student.classroom else "Chưa phân lớp"
             }
         })
     return jsonify(tuitions_data), 200
@@ -96,3 +100,14 @@ def get_tuition_items(tuition_id):
         "items": items,
         "overall_status": tuition.overall_status.value  # hybrid_property
     }, 200
+
+@tuitionFee_api.route('/api/classrooms', methods=["GET"])
+def get_classrooms():
+    classrooms = Classroom.query.all()
+    classrooms_data = []
+    for classroom in classrooms:
+        classrooms_data.append({
+            "id": classroom.id,
+            "name": classroom.name
+        })
+    return jsonify(classrooms_data), 200

@@ -3,6 +3,7 @@ ITEMS_PER_PAGE = 10;
 let totalsData = [];
 let tuitionsFee = [];
 let currentTuitions = [];
+let classrooms = [];
 
 const monthly_total_revenue = document.getElementById("monthly-total-revenue");
 const monthly_collected_ammounts = document.getElementById(
@@ -15,6 +16,7 @@ const monthly_uncollected_ammounts = document.getElementById(
 async function initData() {
   totalsData = await fetchDataUrl(`/api/tuitions/totals`);
   tuitionsFee = await fetchDataUrl(`/api/tuitions`);
+  classrooms = await fetchDataUrl(`/api/classrooms`);
 }
 
 function renderTuitionsTable(tuitions) {
@@ -33,6 +35,9 @@ function renderTuitionsTable(tuitions) {
 
     row.innerHTML = `
             <td>${tuition.student.name}</td>
+              <td>${
+                tuition.classroom ? tuition.classroom.name : "Chưa phân lớp"
+              }</td>
               <td class="text-end" >${formatNumber(tuition.fee_base)}</td>
               <td class="text-end" >${formatNumber(tuition.meal_fee)}</td>
               <td class="text-end" >${formatNumber(tuition.extra_fee)}</td>
@@ -85,6 +90,46 @@ function updateStatistics(ym) {
   }
 }
 
+function ClassFilter() {
+  const classFilter = document.getElementById("class-filter");
+  if (!classFilter) return;
+
+  while (classFilter.children.length > 1) {
+    classFilter.removeChild(classFilter.lastChild);
+  }
+
+  classrooms.forEach((classroom) => {
+    const option = document.createElement("option");
+    option.value = classroom.id;
+    option.textContent = classroom.name;
+    classFilter.appendChild(option);
+  });
+}
+
+function applyFilters() {
+  const selectedClass = document.getElementById("class-filter")?.value;
+  const activeStatusBtn = document.querySelector(".btn-group .btn.active");
+  const status = activeStatusBtn?.dataset.status || "all";
+
+  let filteredTuitions = currentTuitions;
+
+  // Filter theo lớp
+  if (selectedClass && selectedClass !== "all") {
+    filteredTuitions = filteredTuitions.filter(
+      (t) => t.classroom && t.classroom.id === Number(selectedClass)
+    );
+  }
+
+  // Filter theo trạng thái
+  if (status === "Paid") {
+    filteredTuitions = filteredTuitions.filter((t) => t.status === "Paid");
+  } else if (status === "Unpaid") {
+    filteredTuitions = filteredTuitions.filter((t) => t.status === "Unpaid");
+  }
+
+  renderTuitionsTable(filteredTuitions);
+}
+
 function btnFilter() {
   const allBtn = document.getElementById("all-btn");
   const paidBtn = document.getElementById("paid-btn");
@@ -96,18 +141,17 @@ function btnFilter() {
     btn.addEventListener("click", () => {
       buttons.forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
-
-      let filteredTuitions = currentTuitions;
-
-      if (btn.dataset.status === "Paid") {
-        filteredTuitions = currentTuitions.filter((t) => t.status === "Paid");
-      } else if (btn.dataset.status === "Unpaid") {
-        filteredTuitions = currentTuitions.filter((t) => t.status === "Unpaid");
-      }
-
-      renderTuitionsTable(filteredTuitions);
+      applyFilters();
     });
   });
+
+  // Thêm event listener cho dropdown lớp
+  const classFilter = document.getElementById("class-filter");
+  if (classFilter) {
+    classFilter.addEventListener("change", () => {
+      applyFilters();
+    });
+  }
 }
 
 async function renderUI() {
@@ -119,6 +163,7 @@ async function renderUI() {
 
   currentTuitions = tuitionsFee;
 
+  ClassFilter();
   btnFilter();
 
   renderTuitionsTable(currentTuitions);

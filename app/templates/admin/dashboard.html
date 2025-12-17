@@ -1,0 +1,14 @@
+{% extends 'admin/master.html' %}
+{% block body %}
+<div class="container mt-3">
+  <h3>Tổng quan</h3>
+  <p class="text-muted">Chọn chức năng bạn muốn thao tác.</p>
+
+  <div class="list-group">
+    <a class="list-group-item list-group-item-action" href="/admin-panel/user/">Quản lý người dùng</a>
+    <a class="list-group-item list-group-item-action" href="/admin-panel/quy-dinh/">Thay đổi quy định</a>
+    <a class="list-group-item list-group-item-action" href="/admin-panel/thong-bao/">Thông báo</a>
+    <a class="list-group-item list-group-item-action" href="/admin-panel/bao-cao/">Xem báo cáo</a>
+  </div>
+</div>
+{% endblock %}

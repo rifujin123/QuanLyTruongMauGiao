@@ -1,0 +1,15 @@
+{% extends 'admin/base.html' %}
+{% import 'admin/layout.html' as layout with context %}
+
+{% block navbar %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <a class="navbar-brand" href="{{ admin_view.admin.url }}">{{ admin_view.admin.name }}</a>
+
+  <div class="collapse navbar-collapse">
+    {{ layout.menu() }}
+    {{ layout.menu_links() }}
+  </div>
+</nav>
+{% endblock %}
+
+{% block body %}{{ super() }}{% endblock %}
