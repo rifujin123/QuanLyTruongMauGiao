@@ -8,6 +8,7 @@ from app.services.auth_service import (
     MissingFieldError,
     PasswordMismatchError,
     InvalidCredentials,
+    InvalidPhoneError,
 )
 from app.services.user_service import EmailAlreadyExists
 
@@ -17,7 +18,7 @@ auth_service = Blueprint('auth', __name__)
 @auth_service.route('/signup', methods=['POST'])
 def signup():
     if current_user.is_authenticated:
-        # Nếu đã đăng nhập, kiểm tra role để redirect
+        # check role if logged in 
         user_roles = [role.name for role in current_user.roles]
         if 'Admin' in user_roles:
             return redirect(url_for('admin.index'))
@@ -39,17 +40,20 @@ def signup():
             confirm_password=confirm_password,
         )
     except MissingFieldError:
-        flash('Vui lòng nhập đầy đủ thông tin', 'error')
-        return redirect(url_for('pages.signup'))
+        flash('Vui lòng nhập đầy đủ thông tin', 'register_error')
+        return redirect(url_for('pages.signup', mode='register'))
     except PasswordMismatchError:
-        flash('Mật khẩu xác nhận không khớp', 'error')
-        return redirect(url_for('pages.signup'))
+        flash('Mật khẩu xác nhận không khớp', 'register_error')
+        return redirect(url_for('pages.signup', mode='register'))
+    except InvalidPhoneError:
+        flash('Số điện thoại không hợp lệ', 'register_error')
+        return redirect(url_for('pages.signup', mode='register'))
     except EmailAlreadyExists:
-        flash('Email đã được sử dụng', 'error')
-        return redirect(url_for('pages.signup'))
+        flash('Email đã được sử dụng', 'register_error')
+        return redirect(url_for('pages.signup', mode='register'))
 
     flash('Đăng ký thành công! Vui lòng đăng nhập', 'success')
-    return redirect(url_for('pages.signup'))
+    return redirect(url_for('pages.signup', mode='login'))
 
 
 @auth_service.route('/login', methods=['POST'])
@@ -81,10 +85,14 @@ def login():
     except InvalidCredentials:
         flash('Email hoặc mật khẩu không đúng', 'error')
 
-    return redirect(url_for('pages.signup'))
+    return redirect(url_for('pages.signup', mode='login'))
 
 
 @auth_service.route('/logout', methods=['GET', 'POST'])
 def logout():
     logout_user()
+    # Xóa tất cả flash messages khi đăng xuất
+    from flask import session
+    if '_flashes' in session:
+        session.pop('_flashes', None)
     return redirect(url_for('pages.home'))

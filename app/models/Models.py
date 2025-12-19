@@ -5,7 +5,7 @@ from datetime import datetime, date
 from app.extensions import db
 from flask_login import UserMixin
 
-from sqlalchemy import case, and_
+from sqlalchemy import case, and_, func
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship, column_property
 
@@ -152,6 +152,27 @@ class TuitionFee(db.Model):
         if self.status == PaymentStatusEnum.Paid and self.payment_date is None:
             self.payment_date = datetime.utcnow()
 
+def get_monthly_and_yearly_revenue():
+    monthly = (
+        db.session.query(TuitionFee.year,TuitionFee.month,func.sum(TuitionFee.total).label("total"))
+        .filter(TuitionFee.status == PaymentStatusEnum.Paid)
+        .group_by(TuitionFee.year, TuitionFee.month)
+        .order_by(TuitionFee.year, TuitionFee.month)
+        .all()
+    )
+
+    yearly = (
+        db.session.query(
+            TuitionFee.year,
+            func.sum(TuitionFee.total).label("year_total")
+        )
+        .filter(TuitionFee.status == PaymentStatusEnum.Paid)
+        .group_by(TuitionFee.year)
+        .all()
+    )
+
+    year_total_map = {y: t for y, t in yearly}
+    return monthly, year_total_map
 
 class Invoice(db.Model):
     __tablename__ = "invoices"

@@ -93,6 +93,21 @@ async function loadStudentOptions() {
   const students = await fetchDataUrl(`/api/parent/students`);
   if (!students || !Array.isArray(students) || students.length === 0) {
     console.warn("No students for current parent");
+    // default nếu chưa có học sinh
+    select.innerHTML = '<option value="">Chưa có học sinh</option>';
+    if (nameLabel) {
+      nameLabel.textContent = "Chưa có học sinh";
+    }
+    // Hiển thị giá trị mặc định cho các khoản phí
+    if (total_fee) total_fee.textContent = "0 đ";
+    if (base_fee) base_fee.textContent = "0 đ";
+    if (meal_fee) meal_fee.textContent = "0 đ";
+    if (extra_fee) extra_fee.textContent = "0 đ";
+    // Ẩn nút thanh toán
+    const payNowBtn = document.getElementById("pay-now-btn");
+    const viewReceiptBtn = document.getElementById("view-receipt-btn");
+    if (payNowBtn) payNowBtn.style.display = "none";
+    if (viewReceiptBtn) viewReceiptBtn.style.display = "none";
     return;
   }
 
@@ -154,12 +169,21 @@ async function main() {
         const payNowBtn = document.getElementById("pay-now-btn");
         const viewReceiptBtn = document.getElementById("view-receipt-btn");
         if (payNowBtn && viewReceiptBtn) {
+          payNowBtn.style.display = "";
+          viewReceiptBtn.style.display = "";
           if (latestTuition.status === "Paid") {
             payNowBtn.classList.add("d-none");
             viewReceiptBtn.classList.remove("d-none");
+            // Khi đã thu dẫn tới trang biên lai
+            viewReceiptBtn.onclick = () => {
+              window.location.href = `/payment/${latestTuition.id}/receipt`;
+            };
           } else {
             payNowBtn.classList.remove("d-none");
+            payNowBtn.href = `/payment/${latestTuition.id}`;
             viewReceiptBtn.classList.add("d-none");
+            // Khi chưa thu, không cho xem biên lai
+            viewReceiptBtn.onclick = null;
           }
         }
       }
@@ -169,7 +193,21 @@ async function main() {
       const viewReceiptBtn = document.getElementById("view-receipt-btn");
       if (payNowBtn && viewReceiptBtn) {
         payNowBtn.classList.remove("d-none");
+        payNowBtn.style.display = "";
+        payNowBtn.href = "#";
+        payNowBtn.onclick = (e) => {
+          e.preventDefault();
+          alert("Chưa có học phí để thanh toán");
+        };
         viewReceiptBtn.classList.add("d-none");
+        viewReceiptBtn.style.display = "none";
+        viewReceiptBtn.onclick = null;
+      }
+      // Hiển thị thông báo không có dữ liệu trong bảng
+      const tbody = document.querySelector("#tuition-items-tbody");
+      if (tbody) {
+        tbody.innerHTML =
+          '<tr><td colspan="5" class="text-center text-muted">Chưa có dữ liệu học phí cho tháng này</td></tr>';
       }
     }
 
@@ -206,11 +244,10 @@ async function main() {
 
 function handleItemAction(tuitionId, itemType, status) {
   console.log("Handle action:", tuitionId, itemType, status);
-  // TODO: Implement payment or view receipt logic
   if (status === "Paid") {
-    alert("Xem biên lai");
+    window.location.href = `/payment/${tuitionId}/receipt`;
   } else {
-    alert("Thanh toán");
+    window.location.href = `/payment/${tuitionId}`;
   }
 }
 
@@ -221,6 +258,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   await loadStudentOptions();
   if (studentId != null) {
     await main();
+  } else {
+    // Nếu không có học sinh, hiển thị giá trị mặc định
+    const tbody = document.querySelector("#tuition-items-tbody");
+    if (tbody) {
+      tbody.innerHTML =
+        '<tr><td colspan="5" class="text-center text-muted">Chưa có dữ liệu học phí</td></tr>';
+    }
   }
 
   const select = document.getElementById("studentSelector");
@@ -228,6 +272,22 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (select) {
     select.addEventListener("change", async () => {
       studentId = select.value;
+      if (!studentId) {
+        // Nếu không chọn học sinh, hiển thị giá trị mặc định
+        if (nameLabel) {
+          nameLabel.textContent = "Chưa có học sinh";
+        }
+        if (total_fee) total_fee.textContent = "0 đ";
+        if (base_fee) base_fee.textContent = "0 đ";
+        if (meal_fee) meal_fee.textContent = "0 đ";
+        if (extra_fee) extra_fee.textContent = "0 đ";
+        const tbody = document.querySelector("#tuition-items-tbody");
+        if (tbody) {
+          tbody.innerHTML =
+            '<tr><td colspan="5" class="text-center text-muted">Chưa có dữ liệu học phí</td></tr>';
+        }
+        return;
+      }
       if (nameLabel) {
         nameLabel.textContent =
           select.options[select.selectedIndex].textContent;
@@ -239,7 +299,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   const filterBtn = document.getElementById("filter-btn");
   if (filterBtn) {
     filterBtn.addEventListener("click", async () => {
-      await main();
+      if (studentId) {
+        await main();
+      }
     });
   }
 });

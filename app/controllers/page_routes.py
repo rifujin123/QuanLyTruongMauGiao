@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, abort, request,
 from flask_login import login_required, current_user
 from functools import wraps
 
-from app.models.Models import Classroom, Student
+from app.models.Models import Classroom, Student, TuitionFee
 from app.services.class_service import get_all_class
 from app.services.health_record_service import count_student_record, count_students_recorded_today, count_students_not_recorded_today
 from app.services.student_service import get_all_students, total_student, search_students, \
@@ -112,7 +112,28 @@ def kid():
 @page_routes.route('/feetracking')
 @roles_required('Parent')
 def feetracking():
-    return render_template('pages/feeTracking.html', Title = "Theo dõi học phí")
+    # Lấy tất cả con của phụ huynh hiện tại
+    parent_id = current_user.id
+    students = Student.query.filter_by(parent_id=parent_id).all()
+    student_ids = [s.id for s in students]
+
+    tuitions = []
+    if student_ids:
+        tuitions = (
+            TuitionFee.query
+            .filter(TuitionFee.student_id.in_(student_ids))
+            .order_by(TuitionFee.year, TuitionFee.month)
+            .all()
+        )
+
+    latest_tuition = tuitions[-1] if tuitions else None
+
+    return render_template(
+        'pages/feeTracking.html',
+        Title="Theo dõi học phí",
+        tuitions=tuitions,
+        tuition=latest_tuition,
+    )
 
 @page_routes.route('/signup', methods=['GET'])
 def signup():
@@ -120,7 +141,8 @@ def signup():
         user_roles = [role.name for role in current_user.roles]
         if 'Admin' in user_roles:
             return redirect(url_for('admin.index'))
-    return render_template('pages/login.html')
+    mode = request.args.get('mode', '')
+    return render_template('pages/login.html', mode=mode)
 
 @page_routes.route('/administrator')
 @roles_required('Admin')

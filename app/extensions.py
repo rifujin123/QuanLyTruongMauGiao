@@ -1,12 +1,10 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, current_user
 from flask_admin import Admin, AdminIndexView, expose
-from flask_babel import Babel
 from flask import redirect, url_for, request
 
 db = SQLAlchemy()
 login_manager = LoginManager()
-babel = Babel()
 
 class DashboardIndexView(AdminIndexView):
     def is_accessible(self):

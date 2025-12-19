@@ -18,7 +18,8 @@
     ></script>
   </head>
   <body>
-    {% set flashed_messages = get_flashed_messages(with_categories=true) %}
+    {% set flashed_messages = get_flashed_messages(with_categories=true) %} {%
+    set url_mode = request.args.get('mode', '') %}
     <div class="container">
       <!--Login Form-->
       <div class="form-box login">
@@ -39,10 +40,11 @@
             <a href="#">Quên mật khẩu?</a>
           </div>
           <button type="submit" class="btn">Đăng nhập</button>
-          {% if flashed_messages %} {% for category, message in flashed_messages
-          %}
+          {% if flashed_messages and (url_mode == 'login' or url_mode == '') %}
+          {% for category, message in flashed_messages %} {% if category !=
+          'register_error' %}
           <div class="flash-message">{{ message }}</div>
-          {% endfor %} {% endif %}
+          {% endif %} {% endfor %} {% endif %}
           <p>Đăng nhập với các nền tảng khác</p>
           <div class="social-icons">
             <a href="#"><i class="fab fa-facebook-f"></i></a>
@@ -92,10 +94,11 @@
             />
           </div>
           <button type="submit" class="btn">Đăng ký</button>
-          {% if flashed_messages %} {% for category, message in flashed_messages
-          %}
+          {% if flashed_messages and (url_mode == 'register' or url_mode == '')
+          %} {% for category, message in flashed_messages %} {% if category ==
+          'error' or category == 'register_error' or category == 'success' %}
           <div class="flash-message">{{ message }}</div>
-          {% endfor %} {% endif %}
+          {% endif %} {% endfor %} {% endif %}
           <p>Đăng ký với các nền tảng khác</p>
           <div class="social-icons">
             <a href="#"><i class="fab fa-facebook-f"></i></a>

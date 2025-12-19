@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
+from datetime import datetime
 from app import db
-from app.models.Models import TuitionFee, Student, Classroom
+from app.models.Models import TuitionFee, Student, Classroom, Setting, PaymentStatusEnum
 from app.services.tuition_service import total_revenue, monthly_revenue, monthly_collected_amounts, \
     monthly_uncollected_amounts
 
@@ -35,6 +36,7 @@ def get_tuition():
             "status": tuition.status.value,
             "month": tuition.month,
             "year": tuition.year,
+            "due_date": f"05/{tuition.month:02d}/{tuition.year}",
             "student": {
                 "id": tuition.student.id,
                 "name":tuition.student.name
@@ -69,6 +71,74 @@ def get_totals():
         })
 
     return jsonify(totals_data), 200
+
+
+@tuitionFee_api.route('/api/tuitions/generate', methods=["POST"])
+def generate_tuitions():
+    data = request.get_json(silent=True) or {}
+    year = int(data.get("year") or datetime.now().year)
+    month = int(data.get("month") or datetime.now().month)
+
+    settings = Setting.query.first()
+    if not settings:
+        return jsonify({"message": "Chưa cấu hình học phí trong bảng settings"}), 400
+
+    students = Student.query.all()
+    if not students:
+        return jsonify({"message": "Không có học sinh nào"}), 400
+
+    created = 0
+    for student in students:
+        #Nếu đã có thì bỏ qua
+        existing = TuitionFee.query.filter_by(
+            student_id=student.id,
+            month=month,
+            year=year,
+        ).first()
+        if existing:
+            continue
+
+        fee = TuitionFee(
+            month=month,
+            year=year,
+            fee_base=settings.tuition_base or 0,
+            meal_fee=(settings.meal_fee_per_day or 0) * 30,
+            extra_fee=0,
+            base_status=PaymentStatusEnum.Unpaid,
+            meal_status=PaymentStatusEnum.Unpaid,
+            extra_status=PaymentStatusEnum.Unpaid,
+            status=PaymentStatusEnum.Unpaid,
+            student_id=student.id,
+        )
+        db.session.add(fee)
+        created += 1
+
+    db.session.commit()
+
+    return jsonify(
+        {
+            "message": "Đã tạo học phí tháng mới",
+            "year": year,
+            "month": month,
+            "created": created,
+        }
+    ), 201
+
+
+@tuitionFee_api.route("/api/tuitions/<int:tuition_id>/mark_paid", methods=["POST"])
+def mark_tuition_paid(tuition_id):
+    """Đánh dấu học phí là đã thanh toán (sử dụng sau khi quét QR)."""
+    tuition = TuitionFee.query.get_or_404(tuition_id)
+
+    tuition.base_status = PaymentStatusEnum.Paid
+    tuition.meal_status = PaymentStatusEnum.Paid
+    tuition.extra_status = PaymentStatusEnum.Paid
+    tuition.status = PaymentStatusEnum.Paid
+    tuition.payment_date = datetime.utcnow()
+
+    db.session.commit()
+
+    return jsonify({"message": "Cập nhật trạng thái học phí thành Đã thu"}), 200
 
 @tuitionFee_api.route("/api/tuitions/<int:tuition_id>/items", methods=["GET"])
 def get_tuition_items(tuition_id):

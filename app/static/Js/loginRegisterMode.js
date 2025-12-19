@@ -2,7 +2,6 @@ const container = document.querySelector(".container");
 const registerBtn = document.querySelector(".register-btn");
 const loginBtn = document.querySelector(".login-btn");
 
-// Hàm xóa flash messages
 function removeFlashMessages() {
   const flashMessages = document.querySelectorAll(".flash-message");
   flashMessages.forEach((msg) => {
@@ -20,12 +19,15 @@ document.addEventListener("DOMContentLoaded", () => {
   } else if (mode && mode.toLowerCase() === "login") {
     container.classList.remove("active");
   }
+  setTimeout(() => {
+    removeFlashMessages();
+  }, 5000);
 });
 
 if (registerBtn) {
   registerBtn.addEventListener("click", (e) => {
     e.preventDefault();
-    removeFlashMessages(); // Xóa flash messages khi chuyển form
+    removeFlashMessages();
     container.classList.add("active");
     // Cập nhật URL với mode=register
     const url = new URL(window.location);
@@ -37,11 +39,38 @@ if (registerBtn) {
 if (loginBtn) {
   loginBtn.addEventListener("click", (e) => {
     e.preventDefault();
-    removeFlashMessages(); // Xóa flash messages khi chuyển form
+    removeFlashMessages();
     container.classList.remove("active");
     // Cập nhật URL với mode=login
     const url = new URL(window.location);
     url.searchParams.set("mode", "login");
     window.history.pushState({}, "", url);
+  });
+}
+
+// Validation cho form đăng ký
+const registerForm = document.querySelector(".register form");
+if (registerForm) {
+  registerForm.addEventListener("submit", (e) => {
+    const phoneInput = registerForm.querySelector('input[name="phone"]');
+    if (phoneInput) {
+      const phoneValue = phoneInput.value.trim();
+      if (phoneValue.length > 10) {
+        e.preventDefault();
+        removeFlashMessages();
+
+        const errorMessage = document.createElement("div");
+        errorMessage.className = "flash-message";
+        errorMessage.textContent = "Số điện thoại không hợp lệ";
+        errorMessage.style.color = "#ff0000";
+        errorMessage.style.marginTop = "10px";
+        registerForm.appendChild(errorMessage);
+
+        setTimeout(() => {
+          errorMessage.remove();
+        }, 5000);
+        return false;
+      }
+    }
   });
 }

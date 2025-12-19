@@ -9,7 +9,7 @@ from werkzeug.security import generate_password_hash
 from flask import flash
 from app.models.Models import Setting
 
-from app.extensions import db, login_manager, admin, babel
+from app.extensions import db, login_manager, admin
 
 
 class SecureModelView(ModelView):
@@ -25,7 +25,6 @@ class SecureModelView(ModelView):
         return any(getattr(r, "name", "") == "Admin" for r in roles)
 
     def inaccessible_callback(self, name, **kwargs):
-        # /login của bạn chỉ POST => redirect về trang có form login/signup
         return redirect(url_for("pages.signup", next=request.url))
 
 
@@ -33,12 +32,10 @@ class UserAdminView(SecureModelView):
     column_list = ("name", "phone", "email", "roles", "last_login", "created_at")
     column_exclude_list = ("password_hash", "account_status")
 
-    # ✅ form cho phép nhập mật khẩu dạng field riêng (không lưu trực tiếp)
     form_extra_fields = {
         "password": PasswordField("Mật khẩu")
     }
 
-    # ✅ Cho phép tạo/sửa các field chính + password
     form_columns = ("name", "phone", "email", "roles", "password")
 
     form_excluded_columns = (
@@ -55,7 +52,7 @@ class UserAdminView(SecureModelView):
         if getattr(form, "password", None) and form.password.data:
             model.password_hash = generate_password_hash(form.password.data)
 
-        # Khi tạo mới mà không nhập password -> báo lỗi (tránh insert null)
+        # Khi tạo mới mà không nhập password
         if is_created and not model.password_hash:
             raise ValueError("Vui lòng nhập mật khẩu khi tạo tài khoản mới.")
 
@@ -81,7 +78,7 @@ class QuyDinhView(BaseView):
 
         classrooms = db.session.query(Classroom).order_by(Classroom.name.asc()).all()
 
-        # luôn lấy 1 record settings (thường chỉ có 1 dòng)
+        # luôn lấy 1 record settings
         settings = db.session.query(Setting).first()
         if not settings:
             settings = Setting(
@@ -98,7 +95,7 @@ class QuyDinhView(BaseView):
         if request.method == "POST":
             action = (request.form.get("action") or mode).strip()
 
-            #  HỌC PHÍ + TIỀN ĂN
+            #  học phí + tiền ăn
             if action == "fees":
                 hoc_phi = (request.form.get("hoc_phi_co_ban") or "").strip()
                 tien_an = (request.form.get("tien_an_ngay") or "").strip()
@@ -130,10 +127,9 @@ class QuyDinhView(BaseView):
                 db.session.commit()
                 flash("Cập nhật học phí + tiền ăn thành công.", "success")
 
-                # redirect về đúng tab
                 return redirect(url_for(f"{self.endpoint}.index", mode="fees"))
 
-            # 2) SĨ SỐ TỐI ĐA THEO LỚP
+            #sĩ số
             if action == "capacity":
                 class_id = request.form.get("class_id", type=int)
                 max_slots = (request.form.get("max_slots") or "").strip()
@@ -165,11 +161,9 @@ class QuyDinhView(BaseView):
 
                 return redirect(url_for(f"{self.endpoint}.index", mode="capacity", class_id=class_id))
 
-            # action lạ
             flash("Thao tác không hợp lệ.", "error")
             return redirect(url_for(f"{self.endpoint}.index", mode="fees"))
 
-        # GET: render theo mode
         return self.render(
             "admin/quydinh.html",
             classrooms=classrooms,
@@ -196,7 +190,7 @@ class ThongBaoView(BaseView):
             content = (request.form.get("content") or "").strip()
             target = request.form.get("target") or "all"
 
-            # map dropdown -> giá trị lưu DB
+            # map dropdown
             target_map = {
                 "all": "All",
                 "parent": "Parent",
@@ -256,10 +250,8 @@ def create_app():
     login_manager.login_view = "pages.signup"
     login_manager.login_message = "Bạn phải đăng nhập để xem chức năng này"
 
-    babel.init_app(app)
-
-    # Import models (sau khi db đã init)
-    from app.models.Models import User, Role, Student  # noqa: F401
+    # Import models sau khi db đã init
+    from app.models.Models import User, Role, Student
 
     @login_manager.user_loader
     def load_user(user_id):
@@ -277,14 +269,18 @@ def create_app():
     from app.controllers.kid_api import kid_api
     from app.controllers.health_api import health_api
     from app.controllers.tuitionFee_api import tuitionFee_api
+    from app.controllers.report_controller import report_br
+    from app.controllers.payment_controller import payment_bp
 
     app.register_blueprint(page_routes)
     app.register_blueprint(auth_service)
-    app.register_blueprint(user_api, url_prefix="/api/users")
+    app.register_blueprint(user_api)
     app.register_blueprint(student_api)
     app.register_blueprint(kid_api)
     app.register_blueprint(health_api)
     app.register_blueprint(tuitionFee_api)
+    app.register_blueprint(report_br)
+    app.register_blueprint(payment_bp)
 
     # Flask-Admin
     admin.init_app(app)

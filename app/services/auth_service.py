@@ -17,6 +17,10 @@ class InvalidCredentials(Exception):
     pass
 
 
+class InvalidPhoneError(Exception):
+    pass
+
+
 @dataclass
 class SignupResult:
     user: User
@@ -27,6 +31,8 @@ def signup_parent_user(name: str, email: str, phone: str, password: str, confirm
         raise MissingFieldError()
     if password != confirm_password:
         raise PasswordMismatchError()
+    if phone and len(phone.strip()) > 10:
+        raise InvalidPhoneError()
 
     user = create_user_account(
         name=name,
@@ -40,7 +46,6 @@ def signup_parent_user(name: str, email: str, phone: str, password: str, confirm
 
 
 def authenticate_user(email: str, password: str) -> User:
-    """Xác thực người dùng, trả về User hoặc raise InvalidCredentials."""
     if not all([email, password]):
         raise MissingFieldError()
 

@@ -15,9 +15,7 @@ block content %}
         style="width: 220px"
         aria-label="Chọn bé"
       >
-        <option value="1" selected>Minh Anh - Lớp Chồi 1</option>
-        <option value="2">Gia Huy - Lớp Lá 2</option>
-        <option value="3">Thảo My - Lớp Mầm 3</option>
+        <option value="">Chưa có học sinh</option>
       </select>
       <input
         type="month"
@@ -38,7 +36,7 @@ block content %}
             <span class="badge text-bg-primary">Tháng hiện tại</span>
           </div>
           <p class="text-muted mb-1">
-            Bé: <span id="student-name-label">Minh Anh - Lớp Chồi 1</span>
+            Bé: <span id="student-name-label">Chưa có học sinh</span>
           </p>
           <p class="text-muted mb-3">Tổng số tiền phải đóng trong tháng</p>
           <div class="fs-3 fw-semibold text-primary" id="total-fee">0 đ</div>
@@ -57,9 +55,9 @@ block content %}
             </div>
           </div>
           <div class="mt-4 d-grid gap-2">
-            <button class="btn btn-primary" id="pay-now-btn">
-              Thanh toán ngay
-            </button>
+            <a href="#" class="btn btn-primary" id="pay-now-btn"
+              >Thanh toán ngay</a
+            >
             <button class="btn btn-outline-secondary" id="view-receipt-btn">
               Xem biên lai
             </button>

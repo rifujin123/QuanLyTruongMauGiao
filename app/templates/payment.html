@@ -1,0 +1,96 @@
+{% extends 'pages/base.html' %} {% block title %}Thanh toán học phí{% endblock
+%} {% block content %}
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card shadow-sm">
+        <div class="card-body text-center">
+          <h4 class="mb-3">Thanh toán học phí</h4>
+          {% if tuition %}
+          <p class="text-muted mb-1">
+            Bé:
+            <strong
+              >{{ tuition.student.name if tuition.student else 'N/A' }}</strong
+            >
+          </p>
+          <p class="text-muted mb-3">
+            Tháng {{ '%02d'|format(tuition.month) }}/{{ tuition.year }}
+          </p>
+          <p class="fs-5 fw-semibold mb-3">
+            Số tiền: {{ '{:,.0f}'.format(tuition.total) }} đ
+          </p>
+          {% endif %} {% if qr_url %}
+          <div class="mb-3 d-flex justify-content-center">
+            <img
+              src="{{ qr_url }}"
+              alt="VietQR thanh toán học phí"
+              class="border rounded"
+              style="max-width: 260px; width: 100%; height: auto"
+            />
+          </div>
+          <p class="text-muted mb-0">
+            Vui lòng mở ứng dụng ngân hàng và quét mã QR để thanh toán.
+          </p>
+          {% else %}
+          <p class="text-danger mb-0">
+            Không tạo được mã QR thanh toán. Vui lòng liên hệ nhà trường.
+          </p>
+          {% endif %}
+
+          <div class="mt-4 d-flex justify-content-center gap-2">
+            {% if tuition %}
+            <button
+              type="button"
+              class="btn btn-primary"
+              id="confirm-paid-btn"
+              data-tuition-id="{{ tuition.id }}"
+            >
+              Tôi đã thanh toán
+            </button>
+            {% endif %}
+            <a
+              href="{{ url_for('pages.feetracking') }}"
+              class="btn btn-outline-secondary"
+            >
+              Quay lại theo dõi học phí
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const confirmBtn = document.getElementById("confirm-paid-btn");
+    if (!confirmBtn) return;
+
+    confirmBtn.addEventListener("click", async () => {
+      const tuitionId = confirmBtn.dataset.tuitionId;
+      if (!tuitionId) return;
+
+      try {
+        const res = await fetch(`/api/tuitions/${tuitionId}/mark_paid`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          alert(data.message || "Cập nhật trạng thái thất bại");
+          return;
+        }
+
+        alert(
+          "Đã ghi nhận thanh toán. Bạn sẽ được chuyển về trang theo dõi học phí."
+        );
+        window.location.href = "{{ url_for('pages.feetracking') }}";
+      } catch (err) {
+        console.error(err);
+        alert(err.message || "Có lỗi xảy ra khi cập nhật trạng thái");
+      }
+    });
+  });
+</script>
+{% endblock %}

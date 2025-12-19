@@ -4,7 +4,7 @@ from app.models.DTO import UserDTO
 from app.models.Models import User, users_to_dto, user_to_dto
 from app.services.user_service import create_user_account, EmailAlreadyExists
 from app.utils import _get_payload
-user_api = Blueprint('user_api', __name__)
+user_api = Blueprint('user_api', __name__, url_prefix="/api/users")
 
 
 #GET ALL: GET/api/users

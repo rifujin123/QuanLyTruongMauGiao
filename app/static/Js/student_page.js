@@ -410,9 +410,24 @@ async function createStudent() {
   if (errorEl) errorEl.textContent = "";
 
   // Validation
-  if (!name || !dob || !gender || !address) {
+  if (!name || !dob || !address) {
     if (errorEl)
       errorEl.textContent = "Vui lòng điền đầy đủ thông tin bắt buộc";
+    return;
+  }
+
+  if (!gender || gender === "") {
+    alert("Vui lòng chọn giới tính");
+    return;
+  }
+
+  if (!classId || classId === "" || classId === "0") {
+    alert("Vui lòng chọn lớp");
+    return;
+  }
+
+  if (!parentId || parentId === "" || parentId === "0") {
+    alert("Vui lòng chọn phụ huynh");
     return;
   }
 
@@ -421,8 +436,8 @@ async function createStudent() {
     dob,
     gender,
     address,
-    class_id: classId ? Number(classId) : null,
-    parent_id: parentId ? Number(parentId) : null,
+    class_id: Number(classId),
+    parent_id: Number(parentId),
   };
 
   // Xóa các field null
@@ -476,13 +491,11 @@ async function createStudent() {
       removeModalBackdrop();
       await fetchStudents();
     }
-
   } catch (err) {
     console.error(err);
     if (errorEl) errorEl.textContent = err.message || "Có lỗi xảy ra";
     else alert("Có lỗi xảy ra");
   }
-
 }
 
 // Xóa học sinh

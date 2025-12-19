@@ -4,6 +4,7 @@ originalTotalsData = [];
 originalTuitionsData = [];
 thisYear = null;
 thisMonth = null;
+let revenueChart = null; // Chart doanh thu theo tháng
 
 async function initData() {
   totalsData = await fetchDataUrl(`/api/tuitions/totals`);
@@ -63,6 +64,80 @@ async function renderUI() {
       formatNumber(total.monthly_collected_amounts) + " đ";
     monthlyUncollectedAmmouns.textContent =
       formatNumber(total.monthly_uncollected_amounts) + " đ";
+  }
+
+  // Render / cập nhật biểu đồ doanh thu theo tháng
+  const ctxEl = document.getElementById("revenueChart");
+  if (ctxEl) {
+    const ctx = ctxEl.getContext("2d");
+
+    const labels = [
+      "Tháng 1",
+      "Tháng 2",
+      "Tháng 3",
+      "Tháng 4",
+      "Tháng 5",
+      "Tháng 6",
+      "Tháng 7",
+      "Tháng 8",
+      "Tháng 9",
+      "Tháng 10",
+      "Tháng 11",
+      "Tháng 12",
+    ];
+
+    // Lấy dữ liệu doanh thu theo tháng cho năm hiện tại (đơn vị: triệu đồng)
+    const monthlyData = [];
+    for (let m = 1; m <= 12; m++) {
+      const rec = totalsData.find(
+        (x) => Number(x.month) === m && Number(x.year) === Number(thisYear)
+      );
+      const value = rec ? Number(rec.monthly_collected_amounts || 0) : 0;
+      monthlyData.push(value / 1_000_000); // chuyển sang triệu đồng
+    }
+
+    const chartData = {
+      labels,
+      datasets: [
+        {
+          label: "Doanh thu (triệu đồng)",
+          data: monthlyData,
+          fill: false,
+          borderColor: "rgb(75, 192, 192)",
+          backgroundColor: "rgba(75, 192, 192, 0.2)",
+          tension: 0.1,
+        },
+      ],
+    };
+
+    const config = {
+      type: "line",
+      data: chartData,
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: "top",
+          },
+          title: {
+            display: false,
+          },
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+          },
+        },
+      },
+    };
+
+    if (revenueChart) {
+      revenueChart.data = chartData;
+      revenueChart.update();
+    } else {
+      revenueChart = new Chart(ctx, config);
+    }
   }
 }
 
