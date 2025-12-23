@@ -12,7 +12,6 @@ page_routes = Blueprint('pages', __name__)
 
 #decorator wrap login_required for rbac
 def roles_required(*role_names):
-    """Custom decorator to check if user has required roles."""
     def decorator(f):
         @wraps(f)
         @login_required

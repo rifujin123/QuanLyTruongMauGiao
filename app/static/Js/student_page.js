@@ -8,7 +8,6 @@ let studentPaginator = null;
 let editModal = null;
 let parentOptions = [];
 
-// Helper function để xóa backdrop và reset body styles
 function removeModalBackdrop() {
   const backdrop = document.querySelector(".modal-backdrop");
   if (backdrop) backdrop.remove();
@@ -17,28 +16,23 @@ function removeModalBackdrop() {
   document.body.style.paddingRight = "";
 }
 
-// Tải danh sách học sinh từ API theo bộ lọc tìm kiếm/lớp và cập nhật bảng + phân trang
 async function fetchStudents() {
   const student_list = document.getElementById("student_list");
   if (!student_list) return;
-
-  // Hiển thị loading
+  //  loading
   student_list.innerHTML =
     '<tr><td colspan="8" class="text-center"><div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div> Đang tải dữ liệu...</td></tr>';
 
   try {
-    // Lấy query parameter từ URL nếu có
     let apiUrl = `/api/students?`;
     if (searchTerm) apiUrl += `q=${encodeURIComponent(searchTerm)}&`;
     if (selectedClass !== "all") apiUrl += `class_id=${selectedClass}`;
 
-    const response = await fetch(apiUrl);
-
-    if (!response.ok) {
+    data = await fetchDataUrl(apiUrl);
+    if (!data) {
       throw new Error("Failed to fetch students");
     }
 
-    data = await response.json();
     buildParentOptions();
     currentPage = 1;
     totalPages = Math.ceil(data.length / studentsPerPage);
@@ -64,7 +58,6 @@ async function fetchStudents() {
   }
 }
 
-// Render bảng học sinh cho trang hiện tại dựa trên dữ liệu đã tải
 function RenderStudentList() {
   const student_list = document.getElementById("student_list");
   if (!student_list || !data.length) return;
@@ -110,43 +103,38 @@ function RenderStudentList() {
   });
 }
 
-// Tải danh sách toàn bộ phụ huynh từ API users (roles chứa 'Parent')
-function buildParentOptions() {
-  fetch("/api/users/")
-    .then((res) => res.json())
-    .then((users) => {
-      const parents = Array.isArray(users)
-        ? users.filter((u) =>
-            Array.isArray(u.roles)
-              ? u.roles.includes("Parent")
-              : String(u.roles || "").includes("Parent")
-          )
-        : [];
+async function buildParentOptions() {
+  try {
+    const users = await fetchDataUrl("/api/users/");
+    const parents = Array.isArray(users)
+      ? users.filter((u) =>
+          Array.isArray(u.roles)
+            ? u.roles.includes("Parent")
+            : String(u.roles || "").includes("Parent")
+        )
+      : [];
 
-      parentOptions = parents.map((p) => ({
-        id: p.id,
-        name: p.name || "",
-        phone: p.phone || "",
-      }));
+    parentOptions = parents.map((p) => ({
+      id: p.id,
+      name: p.name || "",
+      phone: p.phone || "",
+    }));
 
-      // Cập nhật dropdown phụ huynh nếu có
-      populateParentSelect(
-        document.getElementById("editParentSelect"),
-        document.getElementById("editParentSearch")?.value || "",
-        document.getElementById("editStudentParentId")?.value || ""
-      );
-      populateParentSelect(
-        document.getElementById("createParentSelect"),
-        document.getElementById("createParentSearch")?.value || "",
-        document.getElementById("createStudentParentId")?.value || ""
-      );
-    })
-    .catch((err) => {
-      console.error("Failed to load parent options:", err);
-    });
+    populateParentSelect(
+      document.getElementById("editParentSelect"),
+      document.getElementById("editParentSearch")?.value || "",
+      document.getElementById("editStudentParentId")?.value || ""
+    );
+    populateParentSelect(
+      document.getElementById("createParentSelect"),
+      document.getElementById("createParentSearch")?.value || "",
+      document.getElementById("createStudentParentId")?.value || ""
+    );
+  } catch (err) {
+    console.error("Failed to load parent options:", err);
+  }
 }
 
-// Render options cho dropdown phụ huynh theo term tìm kiếm và id đang chọn
 function populateParentSelect(selectEl, filterTerm = "", selectedId = "") {
   if (!selectEl) return;
   const term = (filterTerm || "").toLowerCase();
@@ -169,7 +157,6 @@ function populateParentSelect(selectEl, filterTerm = "", selectedId = "") {
     });
 }
 
-// Mở modal và đổ dữ liệu học sinh
 function openEditModal(student) {
   if (!student) return;
   document.getElementById("editStudentId").value = student.id || "";
@@ -182,7 +169,7 @@ function openEditModal(student) {
     student.class_id || student.classroom?.id || "";
 
   const parentId = student.parent?.id || "";
-  // cập nhật dropdown + hidden parent id
+  // cập nhật dropdown
   document.getElementById("editStudentParentId").value = parentId || "";
   const editSearchEl = document.getElementById("editParentSearch");
   const editSelectEl = document.getElementById("editParentSelect");
@@ -278,7 +265,6 @@ function init() {
     });
   }
 
-  // dropdown filter lớp dùng chung
   if (typeof initDropdownFilter === "function") {
     const df = initDropdownFilter({
       containerSelector: "#classFilter",
@@ -290,11 +276,9 @@ function init() {
         fetchStudents();
       },
     });
-    // đồng bộ nút toggle với giá trị mặc định
     df.setValue(selectedClass);
   }
 
-  // tìm kiếm dùng chung
   if (typeof initSearchInput === "function") {
     initSearchInput({
       formSelector: "#studentSearchForm",
@@ -308,7 +292,6 @@ function init() {
 
   fetchStudents();
 
-  // Ủy quyền sự kiện click nút chỉnh sửa
   const student_list = document.getElementById("student_list");
   if (student_list) {
     student_list.addEventListener("click", (e) => {
@@ -348,7 +331,7 @@ function init() {
     });
   }
 
-  // Tìm kiếm + dropdown phụ huynh (modal tạo mới)
+  // Tìm kiếm + dropdown phụ huynh modal tạo mới
   const createParentSearch = document.getElementById("createParentSearch");
   const createParentSelect = document.getElementById("createParentSelect");
   const createParentIdHidden = document.getElementById("createStudentParentId");
@@ -573,7 +556,6 @@ function initDropdownFilter({
       current = val ?? defaultValue;
       onChange?.(current);
 
-      // đồng bộ nhãn toggle theo item khớp
       if (toggleBtn) {
         const matched = Array.from(
           container.querySelectorAll(itemSelector)
@@ -588,13 +570,11 @@ function initDropdownFilter({
     },
   };
 
-  // khởi tạo nhãn toggle mặc định
   api.setValue(defaultValue);
 
   return api;
 }
 
-// Khởi tạo input tìm kiếm (copy từ filters.js, dùng riêng cho trang này)
 function initSearchInput({ formSelector, inputSelector, onSearch }) {
   const form = document.querySelector(formSelector);
   const input = document.querySelector(inputSelector);

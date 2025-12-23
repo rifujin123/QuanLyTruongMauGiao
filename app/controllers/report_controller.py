@@ -10,7 +10,7 @@ from app.controllers.page_routes import roles_required
 report_br = Blueprint('report', __name__)
 
 @report_br.route("/export-revenue")
-@roles_required('Admin', 'Teacher')
+@roles_required('Admin', 'Accountant')
 def export_revenue_excel():
     monthly_rows, year_total_map = get_monthly_and_yearly_revenue()
 

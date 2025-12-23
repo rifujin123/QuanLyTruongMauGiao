@@ -10,7 +10,7 @@ user_api = Blueprint('user_api', __name__, url_prefix="/api/users")
 
 #GET ALL: GET/api/users
 @user_api.route('/', methods=['GET'])
-@roles_required('Admin')
+@roles_required('Admin','Teacher')
 def list_users():
     users = User.query.all()
     dtos = users_to_dto(users)

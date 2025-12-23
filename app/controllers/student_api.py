@@ -206,7 +206,6 @@ def update_partial_student(student_id):
     
     if "class_id" in payload:
         class_id = payload['class_id']
-        # Kiểm tra lớp đầy (loại trừ học sinh hiện tại nếu đang ở cùng lớp)
         if class_id:
             if is_classroom_full(classroom_id=class_id, exclude_student_id=student_id):
                 return jsonify({"message": "Lớp đã đầy"}), 400

@@ -11,7 +11,7 @@ tuitionFee_api = Blueprint('tuitionFee_api', __name__)
 
 
 @tuitionFee_api.route('/api/tuitions', methods=["GET"])
-@roles_required('Teacher', 'Admin', 'Parent')
+@roles_required('Teacher', 'Admin', 'Parent', 'Accountant')
 def get_tuition():
     year = request.args.get("year", type=int)
     month = request.args.get("month", type=int)
@@ -53,7 +53,7 @@ def get_tuition():
 
 #GET: GET /api/tuitions/totals
 @tuitionFee_api.route('/api/tuitions/totals', methods=["GET"])
-@roles_required('Teacher', 'Admin')
+@roles_required('Teacher', 'Admin', 'Accountant')
 def get_totals():
 
     months_years = (
@@ -78,7 +78,7 @@ def get_totals():
 
 
 @tuitionFee_api.route('/api/tuitions/generate', methods=["POST"])
-@roles_required('Admin', 'Teacher')
+@roles_required('Admin', 'Teacher', 'Accountant')
 def generate_tuitions():
     data = request.get_json(silent=True) or {}
     year = int(data.get("year") or datetime.now().year)
@@ -131,7 +131,7 @@ def generate_tuitions():
 
 
 @tuitionFee_api.route("/api/tuitions/<int:tuition_id>/mark_paid", methods=["POST"])
-@roles_required('Admin', 'Teacher')
+@roles_required('Admin', 'Teacher', 'Accountant')
 def mark_tuition_paid(tuition_id):
     """Đánh dấu học phí là đã thanh toán (sử dụng sau khi quét QR)."""
     tuition = TuitionFee.query.get_or_404(tuition_id)
@@ -147,7 +147,7 @@ def mark_tuition_paid(tuition_id):
     return jsonify({"message": "Cập nhật trạng thái học phí thành Đã thu"}), 200
 
 @tuitionFee_api.route("/api/tuitions/<int:tuition_id>/items", methods=["GET"])
-@roles_required('Teacher', 'Admin', 'Parent')
+@roles_required('Teacher', 'Admin', 'Parent', 'Accountant')
 def get_tuition_items(tuition_id):
     tuition = TuitionFee.query.get_or_404(tuition_id)
 
@@ -179,7 +179,7 @@ def get_tuition_items(tuition_id):
     }, 200
 
 @tuitionFee_api.route('/api/classrooms', methods=["GET"])
-@roles_required('Teacher', 'Admin', 'Parent')
+@roles_required('Teacher', 'Admin', 'Parent', 'Accountant')
 def get_classrooms():
     classrooms = Classroom.query.all()
     classrooms_data = []
