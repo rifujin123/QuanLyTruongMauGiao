@@ -11,7 +11,6 @@ from app.models.Models import (
 
 app = create_app()
 
-# Đọc từ file JSON
 def load_seed_data():
     seed_file = Path(__file__).parent.parent / 'seed_data.json'
     with open(seed_file, 'r', encoding='utf-8') as f:
@@ -152,24 +151,20 @@ def create_tuitionfees():
         invoices = Invoice.query.all()
         
         for fee_data in data['tuition_fees']:
-            # Tìm student
             student = Student.query.filter_by(name=fee_data['student_name']).first()
             if not student:
                 continue
             
-            # Xử lý payment_date
             payment_date = None
             if fee_data.get('payment_date'):
                 payment_date = datetime.fromisoformat(fee_data['payment_date'])
             
-            # Xử lý invoice_id
             invoice_id = None
             if fee_data.get('invoice_index') is not None:
                 idx = fee_data['invoice_index']
                 if idx < len(invoices):
                     invoice_id = invoices[idx].id
             
-            # Xử lý status
             base_status = PaymentStatusEnum.Unpaid
             if fee_data.get('base_status') == 'Paid' or fee_data.get('status') == 'Paid':
                 base_status = PaymentStatusEnum.Paid

@@ -5,10 +5,12 @@ from openpyxl import Workbook
 from openpyxl.styles import PatternFill, Font, Alignment
 
 from app.models.Models import get_monthly_and_yearly_revenue
+from app.controllers.page_routes import roles_required
 
 report_br = Blueprint('report', __name__)
 
 @report_br.route("/export-revenue")
+@roles_required('Admin', 'Teacher')
 def export_revenue_excel():
     monthly_rows, year_total_map = get_monthly_and_yearly_revenue()
 

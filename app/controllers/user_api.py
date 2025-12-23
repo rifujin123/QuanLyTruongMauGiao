@@ -4,11 +4,13 @@ from app.models.DTO import UserDTO
 from app.models.Models import User, users_to_dto, user_to_dto
 from app.services.user_service import create_user_account, EmailAlreadyExists
 from app.utils import _get_payload
+from app.controllers.page_routes import roles_required
 user_api = Blueprint('user_api', __name__, url_prefix="/api/users")
 
 
 #GET ALL: GET/api/users
 @user_api.route('/', methods=['GET'])
+@roles_required('Admin')
 def list_users():
     users = User.query.all()
     dtos = users_to_dto(users)
@@ -17,6 +19,7 @@ def list_users():
 
 #GET ONE: GET/api/users/<int:user_id>
 @user_api.route('/<int:user_id>', methods=['GET'])
+@roles_required('Admin')
 def get_user(user_id):
     user = User.query.filter_by(id=user_id).first()
     if not user:
@@ -27,6 +30,7 @@ def get_user(user_id):
 
 #CREATE: POST/api/users
 @user_api.route('/', methods=['POST'])
+@roles_required('Admin', 'Teacher')
 def create_user():
     payload = _get_payload()
     name = payload.get('name') or "guest"
@@ -58,6 +62,7 @@ def create_user():
 
 #UPDATE: PUT/PATCH /api/users/<int:user_id>
 @user_api.route('/<int:user_id>', methods=['PUT', 'PATCH'])
+@roles_required('Admin')
 def update_user(user_id):
     user = User.query.filter_by(id=user_id).first()
     if not user:
@@ -86,6 +91,7 @@ def update_user(user_id):
 
 #DELETE: DELETE /api/users/<int:user_id>
 @user_api.route('/<int:user_id>', methods=['DELETE'])
+@roles_required('Admin')
 def delete_user(user_id):
     user = User.query.filter_by(id=user_id).first()
     if not user:

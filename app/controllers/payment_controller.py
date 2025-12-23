@@ -1,13 +1,15 @@
 from flask import Blueprint, render_template
+from flask_login import current_user
 
 from app.models.Models import TuitionFee
+from app.controllers.page_routes import roles_required
 
 payment_bp = Blueprint("payment", __name__)
 
 
 @payment_bp.route("/payment/<int:tuition_id>")
+@roles_required('Parent', 'Teacher', 'Admin')
 def payment_detail(tuition_id):
-    """Trang thanh toán bằng VietQR."""
     tuition = TuitionFee.query.get_or_404(tuition_id)
 
     BANK_BIN = "970436"
@@ -27,7 +29,7 @@ def payment_detail(tuition_id):
 
 
 @payment_bp.route("/payment/<int:tuition_id>/receipt")
+@roles_required('Parent', 'Teacher', 'Admin')
 def payment_receipt(tuition_id):
-    """Trang xem biên lai học phí."""
     tuition = TuitionFee.query.get_or_404(tuition_id)
     return render_template("receipt.html", tuition=tuition)

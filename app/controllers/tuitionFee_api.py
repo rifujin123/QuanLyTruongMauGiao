@@ -1,14 +1,17 @@
 from flask import Blueprint, jsonify, request
+from flask_login import current_user
 from datetime import datetime
 from app import db
 from app.models.Models import TuitionFee, Student, Classroom, Setting, PaymentStatusEnum
 from app.services.tuition_service import total_revenue, monthly_revenue, monthly_collected_amounts, \
     monthly_uncollected_amounts
+from app.controllers.page_routes import roles_required
 
 tuitionFee_api = Blueprint('tuitionFee_api', __name__)
 
 
 @tuitionFee_api.route('/api/tuitions', methods=["GET"])
+@roles_required('Teacher', 'Admin', 'Parent')
 def get_tuition():
     year = request.args.get("year", type=int)
     month = request.args.get("month", type=int)
@@ -50,8 +53,9 @@ def get_tuition():
 
 #GET: GET /api/tuitions/totals
 @tuitionFee_api.route('/api/tuitions/totals', methods=["GET"])
+@roles_required('Teacher', 'Admin')
 def get_totals():
-    # Lấy tất cả cặp (month, year) duy nhất
+
     months_years = (
         db.session.query(TuitionFee.month, TuitionFee.year)
         .distinct()
@@ -64,7 +68,7 @@ def get_totals():
         totals_data.append({
             "month": month,
             "year": year,
-            "total_revenue": total_revenue(),  # tính tổng toàn hệ thống
+            "total_revenue": total_revenue(),  
             "monthly_revenue": monthly_revenue(month, year),
             "monthly_collected_amounts": monthly_collected_amounts(month, year),
             "monthly_uncollected_amounts": monthly_uncollected_amounts(month, year)
@@ -74,6 +78,7 @@ def get_totals():
 
 
 @tuitionFee_api.route('/api/tuitions/generate', methods=["POST"])
+@roles_required('Admin', 'Teacher')
 def generate_tuitions():
     data = request.get_json(silent=True) or {}
     year = int(data.get("year") or datetime.now().year)
@@ -126,6 +131,7 @@ def generate_tuitions():
 
 
 @tuitionFee_api.route("/api/tuitions/<int:tuition_id>/mark_paid", methods=["POST"])
+@roles_required('Admin', 'Teacher')
 def mark_tuition_paid(tuition_id):
     """Đánh dấu học phí là đã thanh toán (sử dụng sau khi quét QR)."""
     tuition = TuitionFee.query.get_or_404(tuition_id)
@@ -141,6 +147,7 @@ def mark_tuition_paid(tuition_id):
     return jsonify({"message": "Cập nhật trạng thái học phí thành Đã thu"}), 200
 
 @tuitionFee_api.route("/api/tuitions/<int:tuition_id>/items", methods=["GET"])
+@roles_required('Teacher', 'Admin', 'Parent')
 def get_tuition_items(tuition_id):
     tuition = TuitionFee.query.get_or_404(tuition_id)
 
@@ -172,6 +179,7 @@ def get_tuition_items(tuition_id):
     }, 200
 
 @tuitionFee_api.route('/api/classrooms', methods=["GET"])
+@roles_required('Teacher', 'Admin', 'Parent')
 def get_classrooms():
     classrooms = Classroom.query.all()
     classrooms_data = []

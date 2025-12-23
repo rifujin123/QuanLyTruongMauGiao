@@ -1,6 +1,5 @@
 {% extends 'pages/base.html' %} {% block title %}Sĩ số lớp{% endblock %} {%
 block content %}
-<!-- Bộ lọc chọn lớp -->
 <div class="card border-0 shadow-sm mb-4">
   <div class="card-body">
     <div
@@ -55,14 +54,7 @@ block content %}
 <div class="row g-3 mb-4">
   {% if classrooms %} {% for classroom in classrooms %}
   <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
-    <!-- ✅ ADDED: class="classroom-card" + data-class-id/data-class-name để click lấy nhiệt độ -->
-    <div
-      class="card shadow-sm border-0 h-100 classroom-card"
-      role="button"
-      style="cursor: pointer"
-      data-class-id="{{ classroom.id }}"
-      data-class-name="{{ classroom.name }}"
-    >
+    <div class="card shadow-sm border-0 h-100">
       <div class="card-body">
         <div class="d-flex align-items-center gap-3">
           <div class="rounded-3 p-3 bg-light">
@@ -96,8 +88,6 @@ block content %}
   {% endfor %} {% endif %}
 </div>
 
-
-
 <!-- Biểu đồ và thống kê -->
 <div class="row g-3 mb-4">
   <!-- Biểu đồ giới tính -->
@@ -119,9 +109,7 @@ block content %}
   <div class="col-12 col-lg-4">
     <div class="card border-0 shadow-sm h-100">
       <div class="card-body">
-        <h5 class="mb-4">
-          <i class="fa-solid fa-chart-bar icon me-2"></i>Thống kê tổng quan
-        </h5>
+        <h5 class="mb-4">Thống kê tổng quan</h5>
         <div class="d-flex flex-column gap-3">
           <div
             class="d-flex align-items-center justify-content-between p-3 bg-light rounded"
@@ -132,32 +120,21 @@ block content %}
                 {{total_students}}
               </div>
             </div>
-            <div class="rounded-circle bg-primary bg-opacity-10 p-3">
-              <i class="fa-solid fa-users icon fs-4"></i>
+          </div>
+          <div
+            class="d-flex align-items-center justify-content-between p-3 bg-light rounded"
+          >
+            <div>
+              <div class="text-secondary small">Số lượng học sinh nam</div>
+              <div class="fw-bold fs-4" id="total-male">{{male_count}}</div>
             </div>
           </div>
           <div
             class="d-flex align-items-center justify-content-between p-3 bg-light rounded"
           >
             <div>
-              <div class="text-secondary small">Tổng sức chứa</div>
-              <div class="fw-bold fs-4" id="total-capacity">{{capacity}}</div>
-            </div>
-            <div class="rounded-circle bg-info bg-opacity-10 p-3">
-              <i class="fa-solid fa-door-open icon fs-4"></i>
-            </div>
-          </div>
-          <div
-            class="d-flex align-items-center justify-content-between p-3 bg-light rounded"
-          >
-            <div>
-              <div class="text-secondary small">Tỷ lệ sử dụng</div>
-              <div class="fw-bold fs-4" id="usage-rate">
-                {{ (total_students / capacity * 100) | round(0) }}%
-              </div>
-            </div>
-            <div class="rounded-circle bg-success bg-opacity-10 p-3">
-              <i class="fa-solid fa-gauge-high icon fs-4"></i>
+              <div class="text-secondary small">Số lượng học sinh nữ</div>
+              <div class="fw-bold fs-4" id="total-female">{{female_count}}</div>
             </div>
           </div>
         </div>
@@ -201,22 +178,27 @@ block content %}
         }
       });
 
-      // Cập nhật biểu đồ giới tính
-      if (genderChart) {
-        let male = {{ male_count }};
-        let female = {{ female_count }};
+      // Cập nhật số lượng nam/nữ và biểu đồ giới tính
+      let male = {{ male_count }};
+      let female = {{ female_count }};
 
-        if (classroomId !== "all") {
-          const stats = genderStatsByClass[classroomId];
-          if (stats) {
-            male = stats.male;
-            female = stats.female;
-          } else {
-            male = 0;
-            female = 0;
-          }
+      if (classroomId !== "all") {
+        const stats = genderStatsByClass[classroomId];
+        if (stats) {
+          male = stats.male;
+          female = stats.female;
+        } else {
+          male = 0;
+          female = 0;
         }
+      }
 
+      const maleEl = document.getElementById("total-male");
+      const femaleEl = document.getElementById("total-female");
+      if (maleEl) maleEl.textContent = male;
+      if (femaleEl) femaleEl.textContent = female;
+
+      if (genderChart) {
         genderChart.data.datasets[0].data = [male, female];
         genderChart.update();
       }
@@ -255,85 +237,6 @@ block content %}
       },
     });
   }
-</script>
-
-<!-- ✅ ADDED: JS click card lớp -> gọi API /api/classes/<id>/temperatures -> render bảng -->
-<script>
-  let currentClassId = null;
-  const FEVER_TEMP = 38.0; // >= 38 là sốt
-
-  async function fetchJson(url) {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error("HTTP " + res.status);
-    return await res.json();
-  }
-
-  function renderTempTable(data) {
-    const tbody = document.getElementById("temp-tbody");
-    tbody.innerHTML = "";
-
-    if (!data || data.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-4">Không có dữ liệu</td></tr>`;
-      return;
-    }
-
-    for (const row of data) {
-      const temp = row.temperature;
-
-      let label = "Chưa đo";
-      let badge = "text-bg-secondary";
-      let dot = "bg-secondary";
-
-      if (temp !== null && temp !== undefined) {
-        if (Number(temp) >= FEVER_TEMP) {
-          label = "Sốt";
-          badge = "text-bg-danger";
-          dot = "bg-danger";
-        } else {
-          label = "Bình thường";
-          badge = "text-bg-success";
-          dot = "bg-success";
-        }
-      }
-
-      tbody.insertAdjacentHTML(
-        "beforeend",
-        `
-        <tr>
-          <td>${row.student_name}</td>
-          <td class="text-end">${temp ?? "-"}</td>
-          <td class="text-center"><span class="badge ${badge}">${label}</span></td>
-        </tr>
-      `
-      );
-    }
-  }
-
-  async function loadClassTemps() {
-    if (!currentClassId) return;
-    const date = document.getElementById("temp-date").value;
-
-    const url = date
-      ? `/api/classes/${currentClassId}/temperatures?date=${date}`
-      : `/api/classes/${currentClassId}/temperatures`;
-
-    const data = await fetchJson(url);
-    renderTempTable(data);
-  }
-
-  document.addEventListener("DOMContentLoaded", () => {
-    document.querySelectorAll(".classroom-card").forEach((card) => {
-      card.addEventListener("click", async () => {
-        currentClassId = card.dataset.classId;
-        document.getElementById("temp-class-name").textContent =
-          card.dataset.className || ("#" + currentClassId);
-        await loadClassTemps();
-      });
-    });
-
-    document.getElementById("temp-date").addEventListener("change", loadClassTemps);
-    document.getElementById("temp-refresh").addEventListener("click", loadClassTemps);
-  });
 </script>
 
 {% endblock %}

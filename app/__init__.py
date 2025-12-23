@@ -4,12 +4,15 @@ from flask_admin import BaseView, expose
 from flask_admin.menu import MenuLink
 from flask_login import current_user
 from flask_migrate import Migrate
+from flask_babel import Babel
 from wtforms import PasswordField
 from werkzeug.security import generate_password_hash
 from flask import flash
 from app.models.Models import Setting
 
 from app.extensions import db, login_manager, admin
+
+babel = Babel()
 
 
 class SecureModelView(ModelView):
@@ -240,11 +243,14 @@ def create_app():
         SQLALCHEMY_DATABASE_URI="mysql+pymysql://root:password@localhost/educa?charset=utf8mb4",
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
         SECRET_KEY="khoideptrai",
+        BABEL_DEFAULT_LOCALE='vi',
+        BABEL_DEFAULT_TIMEZONE='Asia/Ho_Chi_Minh',
     )
 
     # init extensions
     db.init_app(app)
     Migrate(app, db)
+    babel.init_app(app)
 
     login_manager.init_app(app)
     login_manager.login_view = "pages.signup"

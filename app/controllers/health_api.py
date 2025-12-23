@@ -8,6 +8,7 @@ from sqlalchemy.orm import aliased
 from app import db
 from app.models.Models import HealthRecord, Student
 from app.utils import format_date, time_ago, _get_payload
+from app.controllers.page_routes import roles_required
 
 
 
@@ -15,6 +16,7 @@ health_api = Blueprint('health_api', __name__)
 
 #GET: GET /api/health
 @health_api.route('/api/health', methods=['GET'])
+@roles_required('Teacher', 'Admin')
 def get_all_health_record():
     health_records = HealthRecord.query.all()
     if not health_records:
@@ -44,6 +46,7 @@ def get_all_health_record():
 
 #GET: GET /api/health/<int:student_id>
 @health_api.route('/api/health/<int:student_id>', methods=['GET'])
+@roles_required('Teacher', 'Parent', 'Admin')
 def get_health_record_by_student_id(student_id):
     health_records = HealthRecord.query.filter_by(student_id=student_id).order_by(HealthRecord.date_created.asc()).all()
     if not health_records:
@@ -76,6 +79,7 @@ def get_health_record_by_student_id(student_id):
 
 #POST: POST /api/health/<int:student_id>/health-records/<int:record_id>
 @health_api.route('/api/health/<int:student_id>/health-records', methods=['POST'])
+@roles_required('Teacher', 'Admin')
 def create_health_record_by_id(student_id):
     payload = _get_payload()
     if current_user.is_authenticated:
@@ -110,6 +114,7 @@ def create_health_record_by_id(student_id):
 
 #PUT: PUT /api/health/<int:student_id>/health-records/<int:record_id>
 @health_api.route('/api/health/<int:student_id>/health-records/<int:record_id>', methods=['PUT'])
+@roles_required('Teacher', 'Admin')
 def update_health_record_by_id(student_id, record_id):
     payload = _get_payload()
     health_record = HealthRecord.query.filter_by(student_id=student_id, id=record_id).first()
@@ -133,6 +138,7 @@ def update_health_record_by_id(student_id, record_id):
     })
 
 @health_api.route("/api/classes/<int:class_id>/temperatures", methods=["GET"])
+@roles_required('Teacher', 'Admin')
 def get_class_temperatures(class_id):
     # optional: lọc theo ngày (YYYY-MM-DD)
     date_str = request.args.get("date")
@@ -156,7 +162,7 @@ def get_class_temperatures(class_id):
 
     subq = subq.group_by(HealthRecord.student_id).subquery()
 
-    # lấy danh sách học sinh trong lớp + join lần đo mới nhất (nếu có)
+
     q = db.session.query(
         Student.id,
         Student.name,
@@ -172,7 +178,7 @@ def get_class_temperatures(class_id):
         data.append({
             "student_id": sid,
             "student_name": name,
-            "temperature": temp,  # có thể None nếu chưa đo
+            "temperature": temp,  
             "measured_at": dt.isoformat() if dt else None
         })
 

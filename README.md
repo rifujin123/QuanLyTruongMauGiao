@@ -1,115 +1,50 @@
 # Hệ Thống Quản Lý Trường Mẫu Giáo
 
-Hệ thống quản lý toàn diện cho trường mẫu giáo, được xây dựng bằng Python Flask với mô hình MVC.
+Hệ thống quản lý toàn diện cho trường mẫu giáo, được xây dựng bằng Python Flask.
 
-## Tính Năng
+### 1. Cấu hình Database
 
-- Quản lý thông tin trường học
-- Quản lý học sinh
-- Quản lý giáo viên
-- Quản lý lớp học
-- Quản lý thời khóa biểu
-- Quản lý hoạt động hàng ngày
-- Quản lý học phí
-- Quản lý bữa ăn
-- Báo cáo và thống kê
+Tạo database MySQL tên `educa` và cập nhật thông tin kết nối trong `app/__init__.py`:
 
-## Cấu Trúc Dự Án
-
-```
-QuanLyTruongMauGiao/
-├── app/
-│   ├── controllers/      # route/view layer (pages, auth_routes, user_api)
-│   ├── services/         # nghiệp vụ (auth_service, user_service)
-│   ├── models/           # Models, DTO, enums
-│   └── static/, templates/ (được Flask cấu hình ở ngoài)
-├── static/               # File tĩnh (Css, Js)
-├── templates/            # Templates HTML
-├── migrations/           # Alembic migration
-├── instance/database.sqlite3
-├── requirements.txt      # Thư viện
-└── run.py                # Khởi chạy ứng dụng
+```python
+SQLALCHEMY_DATABASE_URI="mysql+pymysql://root:password@localhost/educa?charset=utf8mb4"
 ```
 
-## Yêu Cầu Hệ Thống
+## Trình Tự Chạy
 
-- Python 3.11+
-- Cài đặt qua `pip install -r requirements.txt`
+### Bước 1: Seed dữ liệu (chỉ chạy 1 lần)
 
-## Hướng Dẫn Cài Đặt
+Chạy file `dao.py` để tạo dữ liệu mẫu:
 
-1. Clone repository về máy:
+```bash
+python app/dao.py
+```
 
-   ```bash
-   git clone https://github.com/rifujin123/QuanLyTruongMauGiao.git
-   cd QuanLyTruongMauGiao
-   ```
+### Bước 2: Khởi động ứng dụng
 
-2. Tạo môi trường ảo Python:
+Chạy file `run.py` để khởi động server:
 
-   ```bash
-   python -m venv venv
-   ```
+```bash
+python run.py
+```
 
-3. Kích hoạt môi trường ảo:
+Truy cập ứng dụng tại: `http://127.0.0.1:5000`
 
-   - Windows:
-     ```bash
-     .\venv\Scripts\activate
-     ```
-   - Linux/Mac:
-     ```bash
-     source venv/bin/activate
-     ```
+## Tài Khoản Mặc Định
 
-4. Cài đặt các thư viện cần thiết:
+Sau khi chạy `dao.py`, các tài khoản mẫu (mật khẩu: `123456`) riêng admin mật khẩu là admin:
 
-   ```bash
-   pip install -r requirements.txt
-   ```
+- **Admin**: educa@admin.com
+- **Teacher**: teacher@example.com
+- **Parent**: parent@example.com
+- **Accountant**: accountant@example.com
 
-5. Khởi chạy ứng dụng:
+## Deploy
 
-   ```bash
-   python run.py
-   ```
+Ứng dụng đã được deploy lên pythonanywhere: `https://letuankhoi123.pythonanywhere.com/`
 
-6. Truy cập ứng dụng tại địa chỉ: `http://127.0.0.1:5000`
+## Lưu Ý
 
-## Công Nghệ Sử Dụng
-
-- Python Flask - Web Framework
-- Bootstrap 5 - Frontend Framework
-- Jinja2 - Template Engine
-- Werkzeug - WSGI Utility Library
-- SQLAlchemy (coming soon) - ORM và Database
-
-## Đóng Góp
-
-Mọi đóng góp đều được chào đón! Vui lòng:
-
-1. Fork dự án
-2. Tạo branch mới (`git checkout -b feature/AmazingFeature`)
-3. Commit thay đổi (`git commit -m 'Add some AmazingFeature'`)
-4. Push lên branch (`git push origin feature/AmazingFeature`)
-5. Mở Pull Request
-
-## Ghi chú nhanh
-
-- Blueprint: `pages` (UI), `auth` (signup/login/logout), `user_api` (REST, prefix `/api/users`).
-- Đăng ký người dùng luôn gán role `Parent`; role khác cấp qua admin.
-- Seeder `app/dao.py` tạo 4 user mẫu (Admin/Teacher/Parent/Accountant) mật khẩu `123456`.
-- Chạy: `python run.py` (Flask debug). DB mặc định `instance/database.sqlite3`. Config DB/SECRET_KEY nên tách ENV khi deploy.
-
-## Giấy Phép
-
-Dự án này được phân phối dưới giấy phép MIT License.
-
-## Liên Hệ
-
-- GitHub: [@rifujin123](https://github.com/rifujin123)
-- Email: [2351050085khoi@ou.edu.vn]
-
----
-
-From [rifujin123](https://github.com/rifujin123)
+- Chạy `dao.py` trước khi chạy `run.py` lần đầu tiên
+- File `dao.py` chỉ cần chạy 1 lần để khởi tạo dữ liệu
+- Đảm bảo MySQL đã được cài đặt và chạy trước khi khởi động ứng dụng
